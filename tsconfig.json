@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "es5",
+        "module": "commonjs",
+        "noImplicitAny": true
+    },
+    "filesGlob": [
+        "src/**/*.ts",
+        "../sonic/dist/definitions/**/*.ts"
+    ],
+    "files": [
+        "src/eat.ts",
+        "src/knuckles.ts",
+        "../sonic/dist/definitions/array_list.d.ts",
+        "../sonic/dist/definitions/compose.d.ts",
+        "../sonic/dist/definitions/emerald.d.ts",
+        "../sonic/dist/definitions/factory.d.ts",
+        "../sonic/dist/definitions/fn.d.ts",
+        "../sonic/dist/definitions/id.d.ts",
+        "../sonic/dist/definitions/linked_list.d.ts",
+        "../sonic/dist/definitions/list.d.ts",
+        "../sonic/dist/definitions/mutable_list.d.ts",
+        "../sonic/dist/definitions/observable.d.ts",
+        "../sonic/dist/definitions/observable_list.d.ts",
+        "../sonic/dist/definitions/sonic.d.ts",
+        "../sonic/dist/definitions/traversel.d.ts",
+        "../sonic/dist/definitions/unique_id.d.ts",
+        "../sonic/dist/definitions/unit.d.ts"
+    ]
+}
