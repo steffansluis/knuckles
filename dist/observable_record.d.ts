@@ -9,8 +9,8 @@ export interface IObservableRecord<V> extends IRecord<V>, IObservable<IRecordObs
 }
 export declare class ObservableRecord<V> extends Record<V> implements IObservableRecord<V> {
     constructor(record?: IObservableRecord<V>);
-    observe: (observer: IRecordObserver) => ISubscription;
-    zoom: (key: string | number) => ObservableList<V>;
+    observe(observer: IRecordObserver): ISubscription;
+    zoom(key: Key): ObservableList<V>;
     static create<V>(record: IObservableRecord<V>): ObservableRecord<V>;
     static zoom<V>(record: IObservableRecord<V>, key: Key): IObservableList<V>;
 }

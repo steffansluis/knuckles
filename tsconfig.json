@@ -10,6 +10,7 @@
         "src/**/*.ts"
     ],
     "files": [
+        "src/knuckle.ts",
         "src/knuckles.ts",
         "src/mutable_record.ts",
         "src/observable_record.ts",

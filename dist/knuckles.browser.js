@@ -5,30 +5,95 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var mutable_record_1 = require('./mutable_record');
+var observable_1 = require('../node_modules/sonic/dist/observable');
+var Knuckle = (function (_super) {
+    __extends(Knuckle, _super);
+    function Knuckle() {
+        var _this = this;
+        var sources = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            sources[_i - 0] = arguments[_i];
+        }
+        _super.call(this);
+        this.addSource = function (source) {
+            _this._sources.push(source);
+            return _this;
+        };
+        this._sources = sources;
+        this._subject = new observable_1.Subject();
+    }
+    Knuckle.prototype.has = function (key) {
+        return this._sources.reduce(function (memo, source) { return memo || source.has(key); }, false);
+    };
+    Knuckle.prototype.get = function (key) {
+        var value;
+        for (var i in this._sources) {
+            if (value = this._sources[i].get(key)) {
+                return value;
+            }
+        }
+        return null;
+    };
+    Knuckle.prototype.observe = function (observer) {
+        return this._subject.observe(observer);
+    };
+    Knuckle.prototype.set = function (key, value) {
+        this._sources.forEach(function (source) {
+            if (source["set"] != null)
+                source["set"](key, value);
+        });
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
+    Knuckle.prototype.delete = function (key) {
+        this._sources.forEach(function (source) {
+            if (source["delete"] != null)
+                source["delete"](key);
+        });
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
+    return Knuckle;
+})(mutable_record_1.MutableRecord);
+exports.Knuckle = Knuckle;
+exports.default = Knuckle;
+
+},{"../node_modules/sonic/dist/observable":10,"./mutable_record":2}],2:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var observable_record_1 = require('./observable_record');
 var mutable_list_1 = require('../node_modules/sonic/dist/mutable_list');
 ;
 var MutableRecord = (function (_super) {
     __extends(MutableRecord, _super);
     function MutableRecord(record) {
-        var _this = this;
         _super.call(this, record);
-        this.set = function (key, value) {
-            throw new Error("Not implemented");
-        };
-        this.delete = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return mutable_list_1.MutableList.create(MutableRecord.zoom(_this, key));
-        };
         if (record != null) {
             this.set = record.set;
             this.delete = record.delete;
         }
     }
+    MutableRecord.prototype.set = function (key, value) {
+        throw new Error("Not implemented");
+    };
+    MutableRecord.prototype.delete = function (key) {
+        throw new Error("Not implemented");
+    };
+    MutableRecord.prototype.zoom = function (key) {
+        return mutable_list_1.MutableList.create(MutableRecord.zoom(this, key));
+    };
+    MutableRecord.prototype.compose = function (lens) {
+        return MutableRecord.create(MutableRecord.compose(this, lens));
+    };
     MutableRecord.create = function (record) {
-        return new observable_record_1.ObservableRecord(record);
+        return new MutableRecord(record);
     };
     MutableRecord.zoom = function (record, key) {
         var unit = observable_record_1.ObservableRecord.zoom(record, key);
@@ -56,12 +121,27 @@ var MutableRecord = (function (_super) {
             splice: splice
         };
     };
+    MutableRecord.compose = function (record, lens) {
+        function get(key) {
+            return lens.get(record.get(key));
+        }
+        function set(key, value) {
+            record.set(key, lens.set(record.get(key), value));
+        }
+        return {
+            has: record.has.bind(record),
+            get: get,
+            set: set,
+            delete: record.delete.bind(record),
+            observe: record.observe.bind(record)
+        };
+    };
     return MutableRecord;
 })(observable_record_1.ObservableRecord);
 exports.MutableRecord = MutableRecord;
 exports.default = MutableRecord;
 
-},{"../node_modules/sonic/dist/mutable_list":8,"./observable_record":2}],2:[function(require,module,exports){
+},{"../node_modules/sonic/dist/mutable_list":9,"./observable_record":3}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -75,17 +155,16 @@ var observable_list_1 = require('../node_modules/sonic/dist/observable_list');
 var ObservableRecord = (function (_super) {
     __extends(ObservableRecord, _super);
     function ObservableRecord(record) {
-        var _this = this;
         _super.call(this, record);
-        this.observe = function (observer) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return observable_list_1.ObservableList.create(ObservableRecord.zoom(_this, key));
-        };
         if (record != null)
             this.observe = record.observe;
     }
+    ObservableRecord.prototype.observe = function (observer) {
+        throw new Error("Not implemented");
+    };
+    ObservableRecord.prototype.zoom = function (key) {
+        return observable_list_1.ObservableList.create(ObservableRecord.zoom(this, key));
+    };
     ObservableRecord.create = function (record) {
         return new ObservableRecord(record);
     };
@@ -114,26 +193,25 @@ var ObservableRecord = (function (_super) {
 exports.ObservableRecord = ObservableRecord;
 exports.default = ObservableRecord;
 
-},{"../node_modules/sonic/dist/observable_list":11,"../node_modules/sonic/dist/unit":13,"./record":3}],3:[function(require,module,exports){
+},{"../node_modules/sonic/dist/observable_list":12,"../node_modules/sonic/dist/unit":14,"./record":4}],4:[function(require,module,exports){
 var unit_1 = require('../node_modules/sonic/dist/unit');
 var list_1 = require('../node_modules/sonic/dist/list');
 var Record = (function () {
     function Record(record) {
-        var _this = this;
-        this.has = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.get = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return list_1.List.create(Record.zoom(_this, key));
-        };
         if (record != null) {
             this.get = record.get;
             this.has = record.has;
         }
     }
+    Record.prototype.has = function (key) {
+        throw new Error("Not implemented");
+    };
+    Record.prototype.get = function (key) {
+        throw new Error("Not implemented");
+    };
+    Record.prototype.zoom = function (key) {
+        return list_1.List.create(Record.zoom(this, key));
+    };
     Record.create = function (record) {
         return new Record(record);
     };
@@ -153,7 +231,7 @@ var Record = (function () {
 exports.Record = Record;
 exports.default = Record;
 
-},{"../node_modules/sonic/dist/list":7,"../node_modules/sonic/dist/unit":13}],4:[function(require,module,exports){
+},{"../node_modules/sonic/dist/list":8,"../node_modules/sonic/dist/unit":14}],5:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -165,39 +243,38 @@ var observable_1 = require('../node_modules/sonic/dist/observable');
 var SimpleRecord = (function (_super) {
     __extends(SimpleRecord, _super);
     function SimpleRecord(object) {
-        var _this = this;
         _super.call(this);
-        this.has = function (key) {
-            return key in _this._object;
-        };
-        this.get = function (key) {
-            return _this._object[key];
-        };
-        this.observe = function (observer) {
-            return _this._subject.observe(observer);
-        };
-        this.set = function (key, value) {
-            _this._object[key] = value;
-            _this._subject.notify(function (observer) {
-                observer.onInvalidate(key);
-            });
-        };
-        this.delete = function (key) {
-            if (!(key in _this._object))
-                return;
-            delete _this._object[key];
-            _this._subject.notify(function (observer) {
-                observer.onInvalidate(key);
-            });
-        };
         this._object = object;
         this._subject = new observable_1.Subject();
     }
+    SimpleRecord.prototype.has = function (key) {
+        return key in this._object;
+    };
+    SimpleRecord.prototype.get = function (key) {
+        return this._object[key];
+    };
+    SimpleRecord.prototype.observe = function (observer) {
+        return this._subject.observe(observer);
+    };
+    SimpleRecord.prototype.set = function (key, value) {
+        this._object[key] = value;
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
+    SimpleRecord.prototype.delete = function (key) {
+        if (!(key in this._object))
+            return;
+        delete this._object[key];
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
     return SimpleRecord;
 })(mutable_record_1.MutableRecord);
 exports.default = SimpleRecord;
 
-},{"../node_modules/sonic/dist/observable":9,"./mutable_record":1}],5:[function(require,module,exports){
+},{"../node_modules/sonic/dist/observable":10,"./mutable_record":2}],6:[function(require,module,exports){
 var Cache = (function () {
     function Cache(list) {
         this._byKey = Object.create(null),
@@ -240,7 +317,7 @@ var Cache = (function () {
 })();
 exports.default = Cache;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var Key;
 (function (Key) {
     var uniqueKey = 0;
@@ -255,7 +332,7 @@ var Key;
 })(Key || (Key = {}));
 exports.default = Key;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var tree_1 = require('./tree');
 var cache_1 = require('./cache');
 var List = (function () {
@@ -498,7 +575,7 @@ var List = (function () {
 exports.List = List;
 exports.default = List;
 
-},{"./cache":5,"./tree":12}],8:[function(require,module,exports){
+},{"./cache":6,"./tree":13}],9:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -615,7 +692,7 @@ var MutableList = (function (_super) {
 exports.MutableList = MutableList;
 exports.default = MutableList;
 
-},{"./observable_list":11}],9:[function(require,module,exports){
+},{"./observable_list":12}],10:[function(require,module,exports){
 var key_1 = require('./key');
 var Subject = (function () {
     function Subject() {
@@ -637,7 +714,7 @@ var Subject = (function () {
 })();
 exports.Subject = Subject;
 
-},{"./key":6}],10:[function(require,module,exports){
+},{"./key":7}],11:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -678,7 +755,7 @@ var ObservableCache = (function (_super) {
 })(cache_1.default);
 exports.default = ObservableCache;
 
-},{"./cache":5}],11:[function(require,module,exports){
+},{"./cache":6}],12:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -819,7 +896,7 @@ var ObservableList = (function (_super) {
 exports.ObservableList = ObservableList;
 exports.default = ObservableList;
 
-},{"./list":7,"./observable":9,"./observable_cache":10,"./tree":12}],12:[function(require,module,exports){
+},{"./list":8,"./observable":10,"./observable_cache":11,"./tree":13}],13:[function(require,module,exports){
 var list_1 = require('./list');
 ;
 var Path;
@@ -913,7 +990,7 @@ var Tree;
 })(Tree = exports.Tree || (exports.Tree = {}));
 exports.default = Tree;
 
-},{"./list":7}],13:[function(require,module,exports){
+},{"./list":8}],14:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -977,7 +1054,7 @@ var Unit = (function (_super) {
 })(mutable_list_1.MutableList);
 exports.default = Unit;
 
-},{"./key":6,"./mutable_list":8,"./observable":9}],14:[function(require,module,exports){
+},{"./key":7,"./mutable_list":9,"./observable":10}],15:[function(require,module,exports){
 // Build upon the IList standard from Sonic
 // import {IList} from '../../sonic/dist/list.d';
 // import Id from '../../sonic/dist/key.d';
@@ -986,6 +1063,7 @@ exports.default = Unit;
 var observable_record_1 = require('./observable_record');
 var mutable_record_1 = require('./mutable_record');
 var simple_record_1 = require('./simple_record');
+var knuckle_1 = require('./knuckle');
 function Knuckles(key, value) {
     // if (arguments.length == 2) return Knuckles.set(key, value);
     // else return Knuckles.get(key);
@@ -993,20 +1071,27 @@ function Knuckles(key, value) {
 ;
 var Knuckles;
 (function (Knuckles) {
-    function get(key) {
-        return { key: 2, color: 'green' };
-    }
-    Knuckles.get = get;
-    function set(key, value) {
-        return null;
-    }
-    Knuckles.set = set;
+    // export function get<V>(key: string): V | any {
+    //   return {key: 2, color: 'green'};
+    // }
+    //
+    // export function set<V>(key: string, value: V): string {
+    //   return null;
+    // }
     Knuckles.Record = simple_record_1.default;
     Knuckles.ObservableRecord = observable_record_1.default;
     Knuckles.MutableRecord = mutable_record_1.default;
     Knuckles.SimpleRecord = simple_record_1.default;
+    Knuckles.Knuckle = knuckle_1.default;
+    // export var Fetchable = _Fetchable;
+    Knuckles.records = {
+        "localStorage": new Knuckles.SimpleRecord(localStorage).compose({
+            get: function (str) { return JSON.parse(str); },
+            set: function (str, obj) { return JSON.stringify(obj); }
+        })
+    };
 })(Knuckles || (Knuckles = {}));
 module.exports = Knuckles;
 
-},{"./mutable_record":1,"./observable_record":2,"./simple_record":4}]},{},[14])(14)
+},{"./knuckle":1,"./mutable_record":2,"./observable_record":3,"./simple_record":5}]},{},[15])(15)
 });

@@ -6,9 +6,9 @@ export interface IRecord<V> {
 }
 export declare class Record<V> implements IRecord<V> {
     constructor(record?: IRecord<V>);
-    has: (key: string | number) => boolean;
-    get: (key: string | number) => V;
-    zoom: (key: string | number) => List<V>;
+    has(key: Key): boolean;
+    get(key: Key): V;
+    zoom(key: Key): List<V>;
     static create<V>(record: IRecord<V>): Record<V>;
     static zoom<V>(record: IRecord<V>, key: Key): IList<V>;
 }

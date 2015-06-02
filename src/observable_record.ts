@@ -18,11 +18,11 @@ export class ObservableRecord<V> extends Record<V> implements IObservableRecord<
     if(record != null) this.observe = record.observe;
   }
 
-  observe = (observer: IRecordObserver): ISubscription => {
+  observe(observer: IRecordObserver): ISubscription {
     throw new Error("Not implemented");
   }
 
-  zoom = (key: Key): ObservableList<V> => {
+  zoom(key: Key): ObservableList<V> {
     return ObservableList.create(ObservableRecord.zoom(this, key));
   }
 

@@ -3,6 +3,12 @@ import Unit from '../node_modules/sonic/dist/unit';
 import { IObservableRecord, ObservableRecord } from './observable_record';
 import { IMutableList, MutableList } from '../node_modules/sonic/dist/mutable_list';
 
+//TODO: Do this somewhere else (Tails I think) and import the type
+export interface ILens<A,B> {
+  get(a: A): B;
+  set(a: A, b: B): A;
+}
+
 export interface IMutableRecord<V> extends IObservableRecord<V> {
   set(key: Key, value: V): void;
   delete(key: Key): void;
@@ -18,20 +24,24 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
     }
   }
 
-  set = (key: Key, value: V): void => {
+  set(key: Key, value: V): void {
     throw new Error("Not implemented");
   }
 
-  delete = (key: Key): void => {
+  delete(key: Key): void {
     throw new Error("Not implemented");
   }
 
-  zoom = (key: Key): MutableList<V> => {
+  zoom(key: Key): MutableList<V> {
     return MutableList.create(MutableRecord.zoom(this, key));
   }
 
-  static create<V>(record: IObservableRecord<V>): ObservableRecord<V> {
-    return new ObservableRecord(record);
+  compose<W>(lens: ILens<V,W>): MutableRecord<W> {
+    return MutableRecord.create<W>(MutableRecord.compose<V,W>(this, lens));
+  }
+
+  static create<V>(record: IMutableRecord<V>): MutableRecord<V> {
+    return new MutableRecord(record);
   }
 
   static zoom<V>(record: IMutableRecord<V>, key: Key): IMutableList<V> {
@@ -55,6 +65,24 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
       set:     set,
       splice:  splice
     };
+  }
+
+  static compose<V,W>(record: IMutableRecord<V>, lens: ILens<V, W>): IMutableRecord<W> {
+    function get(key: Key): W {
+      return lens.get(record.get(key));
+    }
+
+    function set(key: Key, value: W): void {
+      record.set(key, lens.set(record.get(key), value))
+    }
+
+    return {
+      has: record.has.bind(record),
+      get: get,
+      set: set,
+      delete: record.delete.bind(record),
+      observe: record.observe.bind(record)
+    }
   }
 }
 

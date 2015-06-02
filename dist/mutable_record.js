@@ -10,24 +10,26 @@ var mutable_list_1 = require('../node_modules/sonic/dist/mutable_list');
 var MutableRecord = (function (_super) {
     __extends(MutableRecord, _super);
     function MutableRecord(record) {
-        var _this = this;
         _super.call(this, record);
-        this.set = function (key, value) {
-            throw new Error("Not implemented");
-        };
-        this.delete = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return mutable_list_1.MutableList.create(MutableRecord.zoom(_this, key));
-        };
         if (record != null) {
             this.set = record.set;
             this.delete = record.delete;
         }
     }
+    MutableRecord.prototype.set = function (key, value) {
+        throw new Error("Not implemented");
+    };
+    MutableRecord.prototype.delete = function (key) {
+        throw new Error("Not implemented");
+    };
+    MutableRecord.prototype.zoom = function (key) {
+        return mutable_list_1.MutableList.create(MutableRecord.zoom(this, key));
+    };
+    MutableRecord.prototype.compose = function (lens) {
+        return MutableRecord.create(MutableRecord.compose(this, lens));
+    };
     MutableRecord.create = function (record) {
-        return new observable_record_1.ObservableRecord(record);
+        return new MutableRecord(record);
     };
     MutableRecord.zoom = function (record, key) {
         var unit = observable_record_1.ObservableRecord.zoom(record, key);
@@ -53,6 +55,21 @@ var MutableRecord = (function (_super) {
             observe: unit.observe,
             set: set,
             splice: splice
+        };
+    };
+    MutableRecord.compose = function (record, lens) {
+        function get(key) {
+            return lens.get(record.get(key));
+        }
+        function set(key, value) {
+            record.set(key, lens.set(record.get(key), value));
+        }
+        return {
+            has: record.has.bind(record),
+            get: get,
+            set: set,
+            delete: record.delete.bind(record),
+            observe: record.observe.bind(record)
         };
     };
     return MutableRecord;

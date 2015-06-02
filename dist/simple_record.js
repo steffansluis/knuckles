@@ -9,34 +9,33 @@ var observable_1 = require('../node_modules/sonic/dist/observable');
 var SimpleRecord = (function (_super) {
     __extends(SimpleRecord, _super);
     function SimpleRecord(object) {
-        var _this = this;
         _super.call(this);
-        this.has = function (key) {
-            return key in _this._object;
-        };
-        this.get = function (key) {
-            return _this._object[key];
-        };
-        this.observe = function (observer) {
-            return _this._subject.observe(observer);
-        };
-        this.set = function (key, value) {
-            _this._object[key] = value;
-            _this._subject.notify(function (observer) {
-                observer.onInvalidate(key);
-            });
-        };
-        this.delete = function (key) {
-            if (!(key in _this._object))
-                return;
-            delete _this._object[key];
-            _this._subject.notify(function (observer) {
-                observer.onInvalidate(key);
-            });
-        };
         this._object = object;
         this._subject = new observable_1.Subject();
     }
+    SimpleRecord.prototype.has = function (key) {
+        return key in this._object;
+    };
+    SimpleRecord.prototype.get = function (key) {
+        return this._object[key];
+    };
+    SimpleRecord.prototype.observe = function (observer) {
+        return this._subject.observe(observer);
+    };
+    SimpleRecord.prototype.set = function (key, value) {
+        this._object[key] = value;
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
+    SimpleRecord.prototype.delete = function (key) {
+        if (!(key in this._object))
+            return;
+        delete this._object[key];
+        this._subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
     return SimpleRecord;
 })(mutable_record_1.MutableRecord);
 exports.default = SimpleRecord;

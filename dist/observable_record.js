@@ -11,17 +11,16 @@ var observable_list_1 = require('../node_modules/sonic/dist/observable_list');
 var ObservableRecord = (function (_super) {
     __extends(ObservableRecord, _super);
     function ObservableRecord(record) {
-        var _this = this;
         _super.call(this, record);
-        this.observe = function (observer) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return observable_list_1.ObservableList.create(ObservableRecord.zoom(_this, key));
-        };
         if (record != null)
             this.observe = record.observe;
     }
+    ObservableRecord.prototype.observe = function (observer) {
+        throw new Error("Not implemented");
+    };
+    ObservableRecord.prototype.zoom = function (key) {
+        return observable_list_1.ObservableList.create(ObservableRecord.zoom(this, key));
+    };
     ObservableRecord.create = function (record) {
         return new ObservableRecord(record);
     };

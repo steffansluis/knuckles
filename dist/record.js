@@ -2,21 +2,20 @@ var unit_1 = require('../node_modules/sonic/dist/unit');
 var list_1 = require('../node_modules/sonic/dist/list');
 var Record = (function () {
     function Record(record) {
-        var _this = this;
-        this.has = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.get = function (key) {
-            throw new Error("Not implemented");
-        };
-        this.zoom = function (key) {
-            return list_1.List.create(Record.zoom(_this, key));
-        };
         if (record != null) {
             this.get = record.get;
             this.has = record.has;
         }
     }
+    Record.prototype.has = function (key) {
+        throw new Error("Not implemented");
+    };
+    Record.prototype.get = function (key) {
+        throw new Error("Not implemented");
+    };
+    Record.prototype.zoom = function (key) {
+        return list_1.List.create(Record.zoom(this, key));
+    };
     Record.create = function (record) {
         return new Record(record);
     };

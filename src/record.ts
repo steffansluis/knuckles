@@ -16,15 +16,15 @@ export class Record<V> implements IRecord<V> {
     }
   }
 
-  has = (key: Key): boolean => {
+  has(key: Key): boolean {
     throw new Error("Not implemented");
   }
 
-  get = (key: Key): V => {
+  get(key: Key): V {
     throw new Error("Not implemented");
   }
 
-  zoom = (key: Key): List<V> => {
+  zoom(key: Key): List<V> {
     return List.create(Record.zoom(this, key));
   }
 
