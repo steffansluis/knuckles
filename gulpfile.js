@@ -28,7 +28,7 @@ gulp.task('typescript', function() {
     .pipe(typescript(typescriptProject))
 
   return merge([
-    // result.dts.pipe(gulp.dest('dist')),
+    result.dts.pipe(gulp.dest('dist')),
     result.js.pipe(gulp.dest('dist'))
   ]);
 });
