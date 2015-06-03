@@ -15,6 +15,7 @@
         "src/mutable_record.ts",
         "src/observable_record.ts",
         "src/record.ts",
+        "src/remote_record.ts",
         "src/simple_record.ts"
     ]
 }
