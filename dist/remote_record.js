@@ -12,15 +12,16 @@ var RemoteRecord = (function (_super) {
         _super.call(this, {});
     }
     RemoteRecord.prototype._fetch = function (key, value) {
-        var url = this._urlRoot + "/" + key, p;
+        var url = this._urlRoot, p;
+        url = key ? url + "/" + key : url;
         var options = {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            method: "GET"
+            method: key ? "GET" : "POST"
         };
-        if (arguments.length == 2)
+        if (key && arguments.length == 2)
             options.method = value ? "PUT" : "DELETE";
         if (value != null)
             options.body = JSON.stringify(value);
@@ -49,9 +50,11 @@ var RemoteRecord = (function (_super) {
         return null;
     };
     RemoteRecord.prototype.delete = function (key) {
-        this._fetch(key, null);
-        this._subject.notify(function (observer) {
-            observer.onInvalidate(key);
+        var _notify = this._subject.notify.bind(this);
+        this._fetch(key, null).then(function () {
+            _notify(function (observer) {
+                observer.onInvalidate(key);
+            });
         });
     };
     return RemoteRecord;

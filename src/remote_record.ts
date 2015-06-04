@@ -13,18 +13,20 @@ export class RemoteRecord<V> extends SimpleRecord<V> {
   }
 
   _fetch(key: Key, value?: V): any {
-    var url: string = this._urlRoot + "/" + key,
+    var url: string = this._urlRoot,
       p: any;
+
+    url = key ? url + "/" + key: url;
 
     var options: any = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      method: "GET"
+      method: key ? "GET" : "POST"
     };
 
-    if (arguments.length == 2) options.method = value ? "PUT" : "DELETE";
+    if (key && arguments.length == 2) options.method = value ? "PUT" : "DELETE";
     if (value != null) options.body = JSON.stringify(value);
 
     console.log(url, options)
@@ -60,14 +62,15 @@ export class RemoteRecord<V> extends SimpleRecord<V> {
   }
 
   delete(key: Key): void {
-    this._fetch(key, null);
-
-    this._subject.notify(function(observer: IRecordObserver) {
-      observer.onInvalidate(key);
+    var _notify = this._subject.notify.bind(this);
+    
+    this._fetch(key, null).then( function () {
+      _notify(function(observer: IRecordObserver) {
+        observer.onInvalidate(key);
+      });
     });
-  }
 
-  //TODO: Observe sources and proxy events
+  }
 
 }
 
