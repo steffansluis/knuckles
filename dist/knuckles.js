@@ -8,6 +8,7 @@ var mutable_record_1 = require('./mutable_record');
 var simple_record_1 = require('./simple_record');
 var knuckle_1 = require('./knuckle');
 var remote_record_1 = require('./remote_record');
+var xhr_1 = require('./xhr');
 function Knuckles(key, value) {
     // if (arguments.length == 2) return Knuckles.set(key, value);
     // else return Knuckles.get(key);
@@ -28,6 +29,7 @@ var Knuckles;
     Knuckles.SimpleRecord = simple_record_1.default;
     Knuckles.Knuckle = knuckle_1.default;
     Knuckles.RemoteRecord = remote_record_1.default;
+    Knuckles.XHRRecord = xhr_1.default;
     // export var Fetchable = _Fetchable;
     Knuckles.records = {
         "localStorage": new Knuckles.SimpleRecord(localStorage).compose({

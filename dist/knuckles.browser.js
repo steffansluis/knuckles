@@ -61,7 +61,7 @@ var Knuckle = (function (_super) {
 exports.Knuckle = Knuckle;
 exports.default = Knuckle;
 
-},{"../node_modules/sonic/dist/observable":11,"./mutable_record":2}],2:[function(require,module,exports){
+},{"../node_modules/sonic/dist/observable":12,"./mutable_record":2}],2:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -141,7 +141,7 @@ var MutableRecord = (function (_super) {
 exports.MutableRecord = MutableRecord;
 exports.default = MutableRecord;
 
-},{"../node_modules/sonic/dist/mutable_list":10,"./observable_record":3}],3:[function(require,module,exports){
+},{"../node_modules/sonic/dist/mutable_list":11,"./observable_record":3}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -193,7 +193,7 @@ var ObservableRecord = (function (_super) {
 exports.ObservableRecord = ObservableRecord;
 exports.default = ObservableRecord;
 
-},{"../node_modules/sonic/dist/observable_list":13,"../node_modules/sonic/dist/unit":15,"./record":4}],4:[function(require,module,exports){
+},{"../node_modules/sonic/dist/observable_list":14,"../node_modules/sonic/dist/unit":16,"./record":4}],4:[function(require,module,exports){
 var unit_1 = require('../node_modules/sonic/dist/unit');
 var list_1 = require('../node_modules/sonic/dist/list');
 var Record = (function () {
@@ -231,7 +231,7 @@ var Record = (function () {
 exports.Record = Record;
 exports.default = Record;
 
-},{"../node_modules/sonic/dist/list":9,"../node_modules/sonic/dist/unit":15}],5:[function(require,module,exports){
+},{"../node_modules/sonic/dist/list":10,"../node_modules/sonic/dist/unit":16}],5:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -339,7 +339,89 @@ var SimpleRecord = (function (_super) {
 })(mutable_record_1.MutableRecord);
 exports.default = SimpleRecord;
 
-},{"../node_modules/sonic/dist/observable":11,"./mutable_record":2}],7:[function(require,module,exports){
+},{"../node_modules/sonic/dist/observable":12,"./mutable_record":2}],7:[function(require,module,exports){
+var observable_1 = require('../node_modules/sonic/dist/observable');
+var ids = ["Msxml2.XMLHTTP", "Microsoft.XMLHTTP", "Msxml2.XMLHTTP.4.0"];
+if (typeof XMLHttpRequest === "undefined") {
+    for (var i = 0; i < ids.length; i++) {
+        try {
+            new ActiveXObject(ids[i]);
+            window["XMLHttpRequest"] = function () {
+                return new ActiveXObject(ids[i]);
+            };
+            break;
+        }
+        catch (e) { }
+    }
+}
+var XHR;
+(function (XHR) {
+    XHR.create = function (url, options) {
+        var xhr = new XMLHttpRequest(), method, url;
+        var method = options.method;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send();
+    };
+    XHR.head = function (url, options) {
+        options.method = "HEAD";
+        return XHR.create(url, options);
+    };
+    XHR.get = function (url, options) {
+        options.method = "GET";
+        return XHR.create(url, options);
+    };
+    XHR.put = function (url, options) {
+        options.method = "PUT";
+        return XHR.create(url, options);
+    };
+    XHR.post = function (url, options) {
+        options.method = "POST";
+        return XHR.create(url, options);
+    };
+})(XHR = exports.XHR || (exports.XHR = {}));
+XHR["delete"] = function (url, options) {
+    options.method = "DELETE";
+    return XHR.create(url, options);
+};
+var XHRRecord;
+(function (XHRRecord) {
+    var _subject = new observable_1.Subject();
+    XHRRecord.invalidate = function (key) {
+        _subject.notify(function (observer) {
+            observer.onInvalidate(key);
+        });
+    };
+    XHRRecord.has = function (key) {
+        XHR.head(key, {});
+        XHRRecord.invalidate(key);
+        return null;
+    };
+    XHRRecord.get = function (key) {
+        XHR.get(key, {});
+        XHRRecord.invalidate(key);
+        return null;
+    };
+    XHRRecord.set = function (key, value) {
+        var xhr = XHR.put(key, { body: JSON.stringify(value) });
+        XHRRecord.invalidate(key);
+        return null;
+    };
+    XHRRecord.observe = function (observer) {
+        return _subject.observe(observer);
+    };
+})(XHRRecord = exports.XHRRecord || (exports.XHRRecord = {}));
+XHRRecord["delete"] = function (key) {
+    var xhr = XHR["delete"](key);
+    XHRRecord.invalidate(key);
+    return null;
+};
+exports.default = XHRRecord;
+
+},{"../node_modules/sonic/dist/observable":12}],8:[function(require,module,exports){
 var Cache = (function () {
     function Cache(list) {
         this._byKey = Object.create(null),
@@ -382,7 +464,7 @@ var Cache = (function () {
 })();
 exports.default = Cache;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var Key;
 (function (Key) {
     var uniqueKey = 0;
@@ -397,7 +479,7 @@ var Key;
 })(Key || (Key = {}));
 exports.default = Key;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var tree_1 = require('./tree');
 var cache_1 = require('./cache');
 var List = (function () {
@@ -640,7 +722,7 @@ var List = (function () {
 exports.List = List;
 exports.default = List;
 
-},{"./cache":7,"./tree":14}],10:[function(require,module,exports){
+},{"./cache":8,"./tree":15}],11:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -757,7 +839,7 @@ var MutableList = (function (_super) {
 exports.MutableList = MutableList;
 exports.default = MutableList;
 
-},{"./observable_list":13}],11:[function(require,module,exports){
+},{"./observable_list":14}],12:[function(require,module,exports){
 var key_1 = require('./key');
 var Subject = (function () {
     function Subject() {
@@ -779,7 +861,7 @@ var Subject = (function () {
 })();
 exports.Subject = Subject;
 
-},{"./key":8}],12:[function(require,module,exports){
+},{"./key":9}],13:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -820,7 +902,7 @@ var ObservableCache = (function (_super) {
 })(cache_1.default);
 exports.default = ObservableCache;
 
-},{"./cache":7}],13:[function(require,module,exports){
+},{"./cache":8}],14:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -961,7 +1043,7 @@ var ObservableList = (function (_super) {
 exports.ObservableList = ObservableList;
 exports.default = ObservableList;
 
-},{"./list":9,"./observable":11,"./observable_cache":12,"./tree":14}],14:[function(require,module,exports){
+},{"./list":10,"./observable":12,"./observable_cache":13,"./tree":15}],15:[function(require,module,exports){
 var list_1 = require('./list');
 ;
 var Path;
@@ -1055,7 +1137,7 @@ var Tree;
 })(Tree = exports.Tree || (exports.Tree = {}));
 exports.default = Tree;
 
-},{"./list":9}],15:[function(require,module,exports){
+},{"./list":10}],16:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1119,7 +1201,7 @@ var Unit = (function (_super) {
 })(mutable_list_1.MutableList);
 exports.default = Unit;
 
-},{"./key":8,"./mutable_list":10,"./observable":11}],16:[function(require,module,exports){
+},{"./key":9,"./mutable_list":11,"./observable":12}],17:[function(require,module,exports){
 // Build upon the IList standard from Sonic
 // import {IList} from '../../sonic/dist/list.d';
 // import Id from '../../sonic/dist/key.d';
@@ -1130,6 +1212,7 @@ var mutable_record_1 = require('./mutable_record');
 var simple_record_1 = require('./simple_record');
 var knuckle_1 = require('./knuckle');
 var remote_record_1 = require('./remote_record');
+var xhr_1 = require('./xhr');
 function Knuckles(key, value) {
     // if (arguments.length == 2) return Knuckles.set(key, value);
     // else return Knuckles.get(key);
@@ -1150,6 +1233,7 @@ var Knuckles;
     Knuckles.SimpleRecord = simple_record_1.default;
     Knuckles.Knuckle = knuckle_1.default;
     Knuckles.RemoteRecord = remote_record_1.default;
+    Knuckles.XHRRecord = xhr_1.default;
     // export var Fetchable = _Fetchable;
     Knuckles.records = {
         "localStorage": new Knuckles.SimpleRecord(localStorage).compose({
@@ -1160,5 +1244,5 @@ var Knuckles;
 })(Knuckles || (Knuckles = {}));
 module.exports = Knuckles;
 
-},{"./knuckle":1,"./mutable_record":2,"./observable_record":3,"./remote_record":5,"./simple_record":6}]},{},[16])(16)
+},{"./knuckle":1,"./mutable_record":2,"./observable_record":3,"./remote_record":5,"./simple_record":6,"./xhr":7}]},{},[17])(17)
 });

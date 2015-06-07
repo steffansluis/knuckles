@@ -10,6 +10,7 @@ import _MutableRecord    from './mutable_record';
 import _SimpleRecord     from './simple_record';
 import _Knuckle          from './knuckle';
 import _RemoteRecord     from './remote_record';
+import _XHRRecord        from './xhr';
 
 function Knuckles(key: string, value?: any): any {
   // if (arguments.length == 2) return Knuckles.set(key, value);
@@ -33,6 +34,7 @@ module Knuckles {
   export var SimpleRecord     = _SimpleRecord;
   export var Knuckle          = _Knuckle;
   export var RemoteRecord     = _RemoteRecord;
+  export var XHRRecord        = _XHRRecord;
   // export var Fetchable = _Fetchable;
 
   export var records: {[key: string]: _ObservableRecord<any>} = {
