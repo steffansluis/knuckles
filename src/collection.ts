@@ -14,6 +14,17 @@ export class Collection<V extends {id: Key}> extends SimpleRecord<V> {
     this._urlRoot = urlRoot;
   }
 
+  all(): Promise<Array<V>> {
+    return XHR.get(this._urlRoot).then( (res) => {
+      var arr: Array<V> = JSON.parse(res.responseText);
+      arr.forEach((value: V) => {
+        super.set(value.id, value);
+      });
+
+      return arr;
+    });
+  }
+
   has(key: Key): Promise<boolean> {
     return super.has(key).then( (has) => {
       return has || XHR.head(this._urlRoot + "/" + key)

@@ -7,6 +7,7 @@ export declare class Collection<V extends {
 }> extends SimpleRecord<V> {
     protected _urlRoot: string;
     constructor(urlRoot: string, models: V[]);
+    all(): Promise<Array<V>>;
     has(key: Key): Promise<boolean>;
     get(key: Key): Promise<V>;
     set(key: Key, value: V): Promise<Key>;

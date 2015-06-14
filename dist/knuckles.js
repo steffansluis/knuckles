@@ -9,6 +9,8 @@ import _MutableRecord from './mutable_record';
 import _SimpleRecord from './simple_record';
 import _Collection from './collection';
 import { XHR as _XHR } from './xhr';
+// Export Sonic for development purposes
+// import _Sonic              from '../node_modules/sonic/dist/sonic';
 function Knuckles(key, value) {
     // if (arguments.length == 2) return Knuckles.set(key, value);
     // else return Knuckles.get(key);

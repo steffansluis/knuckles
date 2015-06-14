@@ -4,6 +4,7 @@
 // import {ILens} from './lenses';
 // import _Fetchable from './fetchable';
 
+
 import _Record              from './record';
 import _ObservableRecord from './observable_record';
 import _MutableRecord    from './mutable_record';
@@ -13,6 +14,9 @@ import _Collection       from './collection';
 // import _Knuckle          from './knuckle';
 // import _RemoteRecord     from './remote_record';
 import {XHR as _XHR}        from './xhr';
+
+// Export Sonic for development purposes
+// import _Sonic              from '../node_modules/sonic/dist/sonic';
 
 function Knuckles(key: string, value?: any): any {
   // if (arguments.length == 2) return Knuckles.set(key, value);
@@ -28,6 +32,8 @@ module Knuckles {
   export var Collection       = _Collection;
 
   export var XHR              = _XHR;
+
+  // export var Sonic           = _Sonic;
   // export var Knuckle          = _Knuckle;
   // export var RemoteRecord     = _RemoteRecord;
   // export var XHRRecord        = _XHRRecord;

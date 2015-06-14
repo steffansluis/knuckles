@@ -5,6 +5,15 @@ export class Collection extends SimpleRecord {
         super({});
         this._urlRoot = urlRoot;
     }
+    all() {
+        return XHR.get(this._urlRoot).then((res) => {
+            var arr = JSON.parse(res.responseText);
+            arr.forEach((value) => {
+                super.set(value.id, value);
+            });
+            return arr;
+        });
+    }
     has(key) {
         return super.has(key).then((has) => {
             return has || XHR.head(this._urlRoot + "/" + key)
