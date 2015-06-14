@@ -21,7 +21,9 @@ export class ObservableRecord extends Record {
         var unit = new Unit();
         record.get(key).then((value) => unit.set(key, value));
         record.observe({
-            onInvalidate: function (key) {
+            onInvalidate: function (k) {
+                if (k != key)
+                    return;
                 record.get(key)
                     .then((value) => unit.set(key, value))
                     .catch(() => unit.splice(null, null));

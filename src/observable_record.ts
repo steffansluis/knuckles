@@ -35,7 +35,8 @@ export class ObservableRecord<V> extends Record<V> implements IObservableRecord<
     record.get(key).then( (value: V) => unit.set(key, value));
 
     record.observe({
-      onInvalidate: function(key) {
+      onInvalidate: function(k) {
+        if (k != key) return;
         record.get(key)
           .then( (value: V) => unit.set(key, value))
           .catch( () => unit.splice(null, null));
