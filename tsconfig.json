@@ -1,8 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "target": "es5",
-        "module": "commonjs",
+        "target": "es6",
         "noImplicitAny": true,
         "declaration": true
     },
@@ -10,6 +9,7 @@
         "src/**/*.ts"
     ],
     "files": [
+        "src/collection.ts",
         "src/knuckle.ts",
         "src/knuckles.ts",
         "src/mutable_record.ts",

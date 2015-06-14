@@ -10,7 +10,7 @@ export interface ILens<A,B> {
 }
 
 export interface IMutableRecord<V> extends IObservableRecord<V> {
-  set(key: Key, value: V): void;
+  set(key: Key, value: V): Promise<Key>;
   delete(key: Key): void;
 };
 
@@ -24,7 +24,7 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
     }
   }
 
-  set(key: Key, value: V): void {
+  set(key: Key, value: V): Promise<Key> {
     throw new Error("Not implemented");
   }
 
@@ -36,15 +36,15 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
     return MutableList.create(MutableRecord.zoom(this, key));
   }
 
-  compose<W>(lens: ILens<V,W>): MutableRecord<W> {
-    return MutableRecord.create<W>(MutableRecord.compose<V,W>(this, lens));
-  }
+  // compose<W>(lens: ILens<V,W>): MutableRecord<W> {
+  //   return MutableRecord.create<W>(MutableRecord.compose<V,W>(this, lens));
+  // }
 
   static create<V>(record: IMutableRecord<V>): MutableRecord<V> {
     return new MutableRecord(record);
   }
 
-  static zoom<V>(record: IMutableRecord<V>, key: Key): IMutableList<V> {
+  static zoom<V>(record: IMutableRecord<V>, key: Key): MutableList<V> {
     var unit = ObservableRecord.zoom(record, key);
 
     function set(_key: Key, value: V): void {
@@ -56,7 +56,7 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
       else record.delete(key);
     }
 
-    return {
+    return MutableList.create({
       has:     unit.has,
       get:     unit.get,
       prev:    unit.prev,
@@ -64,26 +64,26 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
       observe: unit.observe,
       set:     set,
       splice:  splice
-    };
+    });
   }
 
-  static compose<V,W>(record: IMutableRecord<V>, lens: ILens<V, W>): IMutableRecord<W> {
-    function get(key: Key): W {
-      return lens.get(record.get(key));
-    }
-
-    function set(key: Key, value: W): void {
-      record.set(key, lens.set(record.get(key), value))
-    }
-
-    return {
-      has: record.has.bind(record),
-      get: get,
-      set: set,
-      delete: record.delete.bind(record),
-      observe: record.observe.bind(record)
-    }
-  }
+  // static compose<V,W>(record: IMutableRecord<V>, lens: ILens<V, W>): IMutableRecord<W> {
+  //   function get(key: Key): Promise<W> {
+  //     return record.get(key).then(lens.get);
+  //   }
+  //
+  //   function set(key: Key, value: Promise<W>): Promise<Key> {
+  //     return record.set(key, record.get(key).then( (a: V) => lens.set(a, value))
+  //   }
+  //
+  //   return {
+  //     has: record.has.bind(record),
+  //     get: get,
+  //     set: set,
+  //     delete: record.delete.bind(record),
+  //     observe: record.observe.bind(record)
+  //   }
+  // }
 }
 
 export default MutableRecord;

@@ -1,50 +1,33 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var unit_1 = require('../node_modules/sonic/dist/unit');
-var record_1 = require('./record');
-var observable_list_1 = require('../node_modules/sonic/dist/observable_list');
+import Unit from '../node_modules/sonic/dist/unit';
+import { Record } from './record';
+import { ObservableList } from '../node_modules/sonic/dist/observable_list';
 ;
-var ObservableRecord = (function (_super) {
-    __extends(ObservableRecord, _super);
-    function ObservableRecord(record) {
-        _super.call(this, record);
+export class ObservableRecord extends Record {
+    constructor(record) {
+        super(record);
         if (record != null)
             this.observe = record.observe;
     }
-    ObservableRecord.prototype.observe = function (observer) {
+    observe(observer) {
         throw new Error("Not implemented");
-    };
-    ObservableRecord.prototype.zoom = function (key) {
-        return observable_list_1.ObservableList.create(ObservableRecord.zoom(this, key));
-    };
-    ObservableRecord.create = function (record) {
+    }
+    zoom(key) {
+        return ObservableList.create(ObservableRecord.zoom(this, key));
+    }
+    static create(record) {
         return new ObservableRecord(record);
-    };
-    ObservableRecord.zoom = function (record, key) {
-        var unit = new unit_1.default();
-        if (record.has(key))
-            unit.set(key, record.get(key));
+    }
+    static zoom(record, key) {
+        var unit = new Unit();
+        record.get(key).then((value) => unit.set(key, value));
         record.observe({
             onInvalidate: function (key) {
-                if (record.has(key))
-                    unit.set(key, record.get(key));
-                else
-                    unit.splice(null, null);
+                record.get(key)
+                    .then((value) => unit.set(key, value))
+                    .catch(() => unit.splice(null, null));
             }
         });
-        return {
-            has: unit.has,
-            get: unit.get,
-            prev: unit.prev,
-            next: unit.next,
-            observe: unit.observe
-        };
-    };
-    return ObservableRecord;
-})(record_1.Record);
-exports.ObservableRecord = ObservableRecord;
-exports.default = ObservableRecord;
+        return ObservableList.create(unit);
+    }
+}
+export default ObservableRecord;

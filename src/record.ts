@@ -1,10 +1,11 @@
-import Key from '../node_modules/sonic/dist/key';
-import Unit from '../node_modules/sonic/dist/unit';
+import {default as Key} from '../node_modules/sonic/dist/key';
+import {default as Unit} from '../node_modules/sonic/dist/unit';
 import { IList, List } from '../node_modules/sonic/dist/list';
+import { fromPromise } from '../node_modules/sonic/dist/factory';
 
 export interface IRecord<V> {
-  has(key: Key): boolean;
-  get(key: Key): V;
+  has(key: Key): Promise<boolean>;
+  get(key: Key): Promise<V>;
 }
 
 export class Record<V> implements IRecord<V> {
@@ -16,11 +17,11 @@ export class Record<V> implements IRecord<V> {
     }
   }
 
-  has(key: Key): boolean {
+  has(key: Key): Promise<boolean> {
     throw new Error("Not implemented");
   }
 
-  get(key: Key): V {
+  get(key: Key): Promise<V> {
     throw new Error("Not implemented");
   }
 
@@ -33,8 +34,7 @@ export class Record<V> implements IRecord<V> {
   }
 
   static zoom<V>(record: IRecord<V>, key: Key): IList<V> {
-    var unit = new Unit<V>();
-    if(record.has(key)) unit.set(key, record.get(key));
+    var unit = fromPromise(record.get(key))
 
     return {
       has: unit.has,

@@ -3,9 +3,9 @@ import { IRecordObserver } from './observable_record';
 import { MutableRecord } from './mutable_record';
 import { ISubscription, Subject } from '../node_modules/sonic/dist/observable';
 
-export default class SimpleRecord<V> extends MutableRecord<V> {
+export class SimpleRecord<V> extends MutableRecord<V> {
 
-  private _object:  {[key: string]: V};
+  protected _object:  {[key: string]: V};
   protected _subject: Subject<IRecordObserver>;
 
   constructor(object: {[key: string]: V}) {
@@ -14,32 +14,47 @@ export default class SimpleRecord<V> extends MutableRecord<V> {
     this._subject = new Subject<IRecordObserver>();
   }
 
-  has(key: Key): boolean {
-    return key in this._object;
+  has(key: Key): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      resolve(key in this._object);
+    });
   }
 
-  get(key: Key): V {
-    return this._object[key];
+  get(key: Key): Promise<V> {
+    return new Promise((resolve, reject) => {
+      key in this._object ? resolve(this._object[key]) : reject();
+    });
   }
 
   observe(observer: IRecordObserver): ISubscription {
     return this._subject.observe(observer);
   }
 
-  set(key: Key, value: V): void {
-    this._object[key] = value;
-    this._subject.notify(function(observer: IRecordObserver) {
-      observer.onInvalidate(key);
+  set(key: Key, value: V): Promise<Key> {
+    return new Promise((resolve, reject) => {
+      this._object[key] = value;
+      this._subject.notify(function(observer: IRecordObserver) {
+        observer.onInvalidate(key);
+      });
+
+      resolve(key);
     });
   }
 
-  delete(key: Key): void {
-    if(!(key in this._object)) return;
+  delete(key: Key): Promise<V> {
+    return new Promise((resolve, reject) => {
+      if(!(key in this._object)) reject();
 
-    delete this._object[key];
-    this._subject.notify(function(observer: IRecordObserver) {
-      observer.onInvalidate(key);
-    });
+      var value = this._object[key];
+      delete this._object[key];
+      this._subject.notify(function(observer: IRecordObserver) {
+        observer.onInvalidate(key);
+      });
+      
+      resolve(value)
+    })
   }
 
 }
+
+export default SimpleRecord;

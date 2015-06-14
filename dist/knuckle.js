@@ -1,61 +1,64 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var mutable_record_1 = require('./mutable_record');
-var observable_1 = require('../node_modules/sonic/dist/observable');
-var Knuckle = (function (_super) {
-    __extends(Knuckle, _super);
-    function Knuckle() {
-        var _this = this;
-        var sources = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            sources[_i - 0] = arguments[_i];
-        }
-        _super.call(this);
-        this.addSource = function (source) {
-            _this._sources.push(source);
-            return _this;
-        };
-        this._sources = sources;
-        this._subject = new observable_1.Subject();
-    }
-    Knuckle.prototype.has = function (key) {
-        return this._sources.reduce(function (memo, source) { return memo || source.has(key); }, false);
-    };
-    Knuckle.prototype.get = function (key) {
-        var value;
-        for (var i in this._sources) {
-            if (value = this._sources[i].get(key)) {
-                return value;
-            }
-        }
-        return null;
-    };
-    Knuckle.prototype.observe = function (observer) {
-        return this._subject.observe(observer);
-    };
-    Knuckle.prototype.set = function (key, value) {
-        this._sources.forEach(function (source) {
-            if (source["set"] != null)
-                source["set"](key, value);
-        });
-        this._subject.notify(function (observer) {
-            observer.onInvalidate(key);
-        });
-    };
-    Knuckle.prototype.delete = function (key) {
-        this._sources.forEach(function (source) {
-            if (source["delete"] != null)
-                source["delete"](key);
-        });
-        this._subject.notify(function (observer) {
-            observer.onInvalidate(key);
-        });
-    };
-    return Knuckle;
-})(mutable_record_1.MutableRecord);
-exports.Knuckle = Knuckle;
-exports.default = Knuckle;
+// import Key from '../node_modules/sonic/dist/key';
+// import {IRecord} from './record';
+// import { IRecordObserver } from './observable_record';
+// import { MutableRecord } from './mutable_record';
+// import { ISubscription, Subject } from '../node_modules/sonic/dist/observable';
+//
+// export class Knuckle<V> extends MutableRecord<V> {
+//   private _sources: IRecord<V>[];
+//   protected _subject: Subject<IRecordObserver>;
+//
+//   constructor(...sources: IRecord<V>[]) {
+//     super();
+//     this._sources = sources;
+//     this._subject = new Subject<IRecordObserver>();
+//   }
+//
+//   addSource = (source: IRecord<V>): Knuckle<V> => {
+//     this._sources.push(source);
+//     return this;
+//   }
+//
+//   has(key: Key): boolean {
+//     return this._sources.reduce<any>((memo, source) => memo || source.has(key), false);
+//   }
+//
+//   get(key: Key): V {
+//     var value: V;
+//     for (var i in this._sources) {
+//       if (value = this._sources[i].get(key)) {
+//         return value;
+//       }
+//     }
+//     return null;
+//   }
+//
+//   observe(observer: IRecordObserver): ISubscription {
+//     return this._subject.observe(observer);
+//   }
+//
+//   set(key: Key, value: V): void {
+//     this._sources.forEach( function(source: IRecord<V>) {
+//       if (source["set"] != null) source["set"](key, value);
+//     });
+//
+//     this._subject.notify(function(observer: IRecordObserver) {
+//       observer.onInvalidate(key);
+//     });
+//   }
+//
+//   delete(key: Key): void {
+//     this._sources.forEach( function(source: IRecord<V>) {
+//       if (source["delete"] != null) source["delete"](key);
+//     });
+//
+//     this._subject.notify(function(observer: IRecordObserver) {
+//       observer.onInvalidate(key);
+//     });
+//   }
+//
+//   //TODO: Observe sources and proxy events
+//
+// }
+//
+// export default Knuckle;

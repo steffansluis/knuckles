@@ -1,41 +1,44 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var mutable_record_1 = require('./mutable_record');
-var observable_1 = require('../node_modules/sonic/dist/observable');
-var SimpleRecord = (function (_super) {
-    __extends(SimpleRecord, _super);
-    function SimpleRecord(object) {
-        _super.call(this);
+import { MutableRecord } from './mutable_record';
+import { Subject } from '../node_modules/sonic/dist/observable';
+export class SimpleRecord extends MutableRecord {
+    constructor(object) {
+        super();
         this._object = object;
-        this._subject = new observable_1.Subject();
+        this._subject = new Subject();
     }
-    SimpleRecord.prototype.has = function (key) {
-        return key in this._object;
-    };
-    SimpleRecord.prototype.get = function (key) {
-        return this._object[key];
-    };
-    SimpleRecord.prototype.observe = function (observer) {
+    has(key) {
+        return new Promise((resolve, reject) => {
+            resolve(key in this._object);
+        });
+    }
+    get(key) {
+        return new Promise((resolve, reject) => {
+            key in this._object ? resolve(this._object[key]) : reject();
+        });
+    }
+    observe(observer) {
         return this._subject.observe(observer);
-    };
-    SimpleRecord.prototype.set = function (key, value) {
-        this._object[key] = value;
-        this._subject.notify(function (observer) {
-            observer.onInvalidate(key);
+    }
+    set(key, value) {
+        return new Promise((resolve, reject) => {
+            this._object[key] = value;
+            this._subject.notify(function (observer) {
+                observer.onInvalidate(key);
+            });
+            resolve(key);
         });
-    };
-    SimpleRecord.prototype.delete = function (key) {
-        if (!(key in this._object))
-            return;
-        delete this._object[key];
-        this._subject.notify(function (observer) {
-            observer.onInvalidate(key);
+    }
+    delete(key) {
+        return new Promise((resolve, reject) => {
+            if (!(key in this._object))
+                reject();
+            var value = this._object[key];
+            delete this._object[key];
+            this._subject.notify(function (observer) {
+                observer.onInvalidate(key);
+            });
+            resolve(value);
         });
-    };
-    return SimpleRecord;
-})(mutable_record_1.MutableRecord);
-exports.default = SimpleRecord;
+    }
+}
+export default SimpleRecord;

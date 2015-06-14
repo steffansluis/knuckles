@@ -38,12 +38,17 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "tsify": "~0.11.2",
-    "gulp-tsc": "~0.10.0"
+    "gulp-tsc": "~0.10.0",
+    "es6ify": "~1.6.0",
+    "babelify": "~6.1.2"
   },
   "scripts": {
     "test": "grunt test"
   },
   "dependencies": {
     "sonic": "git://github.com/joostverdoorn/sonic#typescript"
+  },
+  "browserify": {
+    "transform": ["babelify"]
   }
 }

@@ -11,6 +11,8 @@ var source     = require('vinyl-source-stream');
 var buffer     = require('vinyl-buffer');
 var merge      = require('merge2');
 var typescript = require('gulp-typescript');
+var es6ify     = require('es6ify');
+var babel      = require('babelify');
 
 var typescriptProject = typescript.createProject('tsconfig.json', { typescript: require('typescript') });
 
@@ -33,12 +35,20 @@ gulp.task('typescript', function() {
   ]);
 });
 gulp.task('browserify', ['typescript'], function() {
-  return browserify('dist/knuckles.js', {standalone: 'Knuckles'})
+  return browserify('dist/knuckles.js', {standalone: 'Knuckles', sourceType: 'module', debug: true})
+    .transform(babel)
     .bundle()
     .pipe(source('knuckles.browser.js'))
-    .pipe(buffer())
     .pipe(gulp.dest('dist'))
 });
+// gulp.task('browserify', ['typescript'], function() {
+//   return browserify(es6ify.runtime, {standalone: 'Knuckles', sourceType: 'module'})
+//     .transform(es6ify.configure(/^(?!.*node_modules)+.+\.js$/))
+//     .add('dist/knuckles.js')
+//     .bundle()
+//     .pipe(source('knuckles.browser.js'))
+//     .pipe(gulp.dest('dist'))
+// });
 
 gulp.task('uglify', ['browserify'], function (){
   return gulp

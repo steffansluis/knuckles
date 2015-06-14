@@ -3,9 +3,10 @@ import Unit from '../node_modules/sonic/dist/unit';
 import { IRecord, Record } from './record';
 import { IObservable, ISubscription } from '../node_modules/sonic/dist/observable';
 import { IObservableList, ObservableList } from '../node_modules/sonic/dist/observable_list';
+import { fromPromise } from '../node_modules/sonic/dist/factory';
 
 export interface IRecordObserver {
-  onInvalidate: (key: Key) => void;
+    onInvalidate: (key: Key) => void;
 }
 
 export interface IObservableRecord<V> extends IRecord<V>, IObservable<IRecordObserver> {};
@@ -14,7 +15,6 @@ export class ObservableRecord<V> extends Record<V> implements IObservableRecord<
 
   constructor(record?: IObservableRecord<V>) {
     super(record);
-
     if(record != null) this.observe = record.observe;
   }
 
@@ -30,24 +30,19 @@ export class ObservableRecord<V> extends Record<V> implements IObservableRecord<
     return new ObservableRecord(record);
   }
 
-  static zoom<V>(record: IObservableRecord<V>, key: Key): IObservableList<V> {
+  static zoom<V>(record: IObservableRecord<V>, key: Key): ObservableList<V> {
     var unit = new Unit<V>();
-    if(record.has(key)) unit.set(key, record.get(key));
+    record.get(key).then( (value: V) => unit.set(key, value));
 
     record.observe({
       onInvalidate: function(key) {
-        if(record.has(key)) unit.set(key, record.get(key));
-        else unit.splice(null, null);
+        record.get(key)
+          .then( (value: V) => unit.set(key, value))
+          .catch( () => unit.splice(null, null));
       }
     });
 
-    return {
-      has: unit.has,
-      get: unit.get,
-      prev: unit.prev,
-      next: unit.next,
-      observe: unit.observe
-    };
+    return ObservableList.create(unit);
   }
 }
 
