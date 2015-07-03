@@ -1,65 +1,45 @@
 import Key from '../node_modules/sonic/dist/key';
 import { IRecordObserver } from './observable_record';
+import { Record, IRecord } from './record';
 import { IMutableRecord } from './mutable_record';
-import { MutableList } from '../node_modules/sonic/dist/mutable_list';
+import { IMutableList } from '../node_modules/sonic/dist/mutable_list';
 import { SimpleRecord } from './simple_record';
 import { ISubscription, Subject } from '../node_modules/sonic/dist/observable';
-import {XHR} from './xhr';
+import { XHR } from './xhr';
 
-export class Collection<V extends {id: Key}> extends SimpleRecord<V> {
-  protected _urlRoot: string;
+export class Collection<V> implements IMutableList<V>, IMutableRecord<V> {
 
-  constructor(urlRoot: string, models: V[]) {
-    super({});
+  private _urlRoot: string;
+
+  constructor(urlRoot: string) {
     this._urlRoot = urlRoot;
+
+
   }
 
-  all(): Promise<Array<V>> {
-    return XHR.get(this._urlRoot).then( (res) => {
-      var arr: Array<V> = JSON.parse(res.responseText);
-      arr.forEach((value: V) => {
-        super.set(value.id, value);
-      });
-
-      return arr;
-    });
-  }
-
-  has(key: Key): Promise<boolean> {
-    return super.has(key).then( (has) => {
-      return has || XHR.head(this._urlRoot + "/" + key)
-        .then(() => true)
-        .catch(() => false);
-    });
-  }
-
-  get(key: Key): Promise<V> {
-    return key in this._object ? super.get(key) : XHR.get(this._urlRoot + "/" + key)
-      .then( ( res ) => {
-        var value: V = JSON.parse(res.responseText);
-        super.set(key, value);
-        return value;
-      })
-  }
-
-  set(key: Key, value: V): Promise<Key> {
-    if (key in this._object) return XHR.put(this._urlRoot + "/" + key, value).then((res) => {
-      return super.set(key, JSON.parse(res.responseText));
-    })
-    else return XHR.post(this._urlRoot, value).then((res) => {
-      var value: V = JSON.parse(res.responseText);
-      return super.set(value.id, value);
-    })
-  }
-
-  observe(observer: IRecordObserver): ISubscription {
-    return this._subject.observe(observer);
+  get = (id: Key): Promise<Resource<V>> => {
+    return XHR.get(this._urlRoot + "/" + id)
+              .then(xhr => xhr.response)
+              .then(JSON.parse)
+              .then((object: any) => new SimpleRecord(object));
   }
 
 
-  delete(key: Key): Promise<V> {
-    return XHR.delete(this._urlRoot + "/" + key).then( (res) => super.delete(key) );
+  prev = (id: Key): Promise<Key> => {
+    return null;
   }
+
+  next = (id: Key): Promise<Key> => {
+    return null;
+  }
+
+  set = (id: Key, value: IRecord<V>>): Promise<void> => {
+    return XHR.set(this._urlRoot + "/" + id, value)
+      .then(xhr => xhr.response)
+      .then(JSON.parse)
+      .then((object: any) => new SimpleRecord(object));
+  }
+
 
 
 }

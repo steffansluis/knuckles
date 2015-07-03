@@ -11,7 +11,7 @@ export interface ILens<A,B> {
 
 export interface IMutableRecord<V> extends IObservableRecord<V> {
   set(key: Key, value: V): Promise<Key>;
-  delete(key: Key): void;
+  delete(key: Key): Promise<void>;
 };
 
 export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRecord<V> {
@@ -24,15 +24,15 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
     }
   }
 
-  set(key: Key, value: V): Promise<Key> {
+  set = (key: Key, value: V): Promise<Key> => {
     throw new Error("Not implemented");
   }
 
-  delete(key: Key): void {
+  delete = (key: Key): Promise<void> => {
     throw new Error("Not implemented");
   }
 
-  zoom(key: Key): MutableList<V> {
+  zoom = (key: Key): MutableList<V> => {
     return MutableList.create(MutableRecord.zoom(this, key));
   }
 
@@ -47,17 +47,18 @@ export class MutableRecord<V> extends ObservableRecord<V> implements IMutableRec
   static zoom<V>(record: IMutableRecord<V>, key: Key): MutableList<V> {
     var unit = ObservableRecord.zoom(record, key);
 
-    function set(_key: Key, value: V): void {
-      if(_key == key) record.set(key, value);
+    function set(_key: Key, value: V): Promise<void> {
+      if(_key == key) return record.set(key, value).then(() => {});
+      return Promise.reject(new Error());
     }
 
-    function splice(prev: Key, next: Key, ...values: V[]): void {
-      if(values.length) record.set(key, values[0]);
-      else record.delete(key);
+    function splice(prev: Key, next: Key, ...values: V[]): Promise<void> {
+      if(values.length) return record.set(key, values[0]).then(() => {});
+
+      return record.delete(key).then(() => {});
     }
 
     return MutableList.create({
-      has:     unit.has,
       get:     unit.get,
       prev:    unit.prev,
       next:    unit.next,

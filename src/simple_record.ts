@@ -14,23 +14,17 @@ export class SimpleRecord<V> extends MutableRecord<V> {
     this._subject = new Subject<IRecordObserver>();
   }
 
-  has(key: Key): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      resolve(key in this._object);
-    });
-  }
-
-  get(key: Key): Promise<V> {
+  get = (key: Key): Promise<V> => {
     return new Promise((resolve, reject) => {
       key in this._object ? resolve(this._object[key]) : reject();
     });
   }
 
-  observe(observer: IRecordObserver): ISubscription {
+  observe = (observer: IRecordObserver): ISubscription => {
     return this._subject.observe(observer);
   }
 
-  set(key: Key, value: V): Promise<Key> {
+  set = (key: Key, value: V): Promise<Key> => {
     return new Promise((resolve, reject) => {
       this._object[key] = value;
       this._subject.notify(function(observer: IRecordObserver) {
@@ -41,8 +35,8 @@ export class SimpleRecord<V> extends MutableRecord<V> {
     });
   }
 
-  delete(key: Key): Promise<V> {
-    return new Promise((resolve, reject) => {
+  delete = (key: Key): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
       if(!(key in this._object)) reject();
 
       var value = this._object[key];
@@ -50,8 +44,8 @@ export class SimpleRecord<V> extends MutableRecord<V> {
       this._subject.notify(function(observer: IRecordObserver) {
         observer.onInvalidate(key);
       });
-      
-      resolve(value)
+
+      resolve();
     })
   }
 
