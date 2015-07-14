@@ -34,6 +34,7 @@ gulp.task('typescript', function() {
     result.js.pipe(gulp.dest('dist'))
   ]);
 });
+
 gulp.task('browserify', ['typescript'], function() {
   return browserify('dist/knuckles.js', {standalone: 'Knuckles', sourceType: 'module', debug: true})
     .transform(babel)

@@ -46,7 +46,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "sonic": "git://github.com/joostverdoorn/sonic#typescript"
+    "sonic": "git://github.com/joostverdoorn/sonic#promises"
   },
   "browserify": {
     "transform": ["babelify"]
