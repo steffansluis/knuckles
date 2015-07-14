@@ -1,5 +1,4 @@
 import Key from '../node_modules/sonic/dist/key';
-import { IRecordObserver } from './observable_record';
 import { IListObserver, ListSubject } from '../node_modules/sonic/dist/observable_list';
 import { MutableList } from '../node_modules/sonic/dist/mutable_list';
 import { MutableCache } from '../node_modules/sonic/dist/mutable_cache';

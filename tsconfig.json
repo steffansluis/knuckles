@@ -10,6 +10,7 @@
     ],
     "files": [
         "src/collection.ts",
+        "src/knuckles.ts",
         "src/xhr.ts"
     ]
 }

@@ -1,0 +1,19 @@
+{
+  "fruits": [
+    {
+      "id": 1,
+      "type": "Elstar",
+      "color": "red"
+    },
+    {
+      "id": 2,
+      "type": "Granny Smith",
+      "color": "green"
+    },
+    {
+      "id": 3,
+      "type": "kanzi",
+      "color": "purple"
+    }
+  ]
+}

@@ -1,6 +1,4 @@
 import { IObservable } from '../node_modules/sonic/dist/observable';
-import { IMutableRecord } from './mutable_record';
-import { IRecordObserver } from './observable_record';
 import { ISubscription, Subject } from '../node_modules/sonic/dist/observable';
 import Key from '../node_modules/sonic/dist/key';
 
