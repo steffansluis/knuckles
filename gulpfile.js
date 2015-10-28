@@ -17,6 +17,8 @@ var babel      = require('babelify');
 var typescriptProject = typescript.createProject('tsconfig.json', { typescript: require('typescript') });
 
 
+// console.log(require('typescript'));
+
 // gulp.task('coffee', function() {
 //   return gulp
 //     .src('src/**/*.coffee')

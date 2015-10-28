@@ -9,8 +9,9 @@
         "src/**/*.ts"
     ],
     "files": [
-        "src/collection.ts",
         "src/knuckles.ts",
+        "src/resource.ts",
         "src/xhr.ts"
-    ]
+    ],
+    "exclude": []
 }

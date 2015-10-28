@@ -1,16 +1,11 @@
-// Build upon the IList standard from Sonic
+import _Sonic from '../node_modules/sonic/dist/sonic';
 import _XHR from './xhr';
-import _Collection from './collection';
-function Knuckles(key, value) {
-    // if (arguments.length == 2) return Knuckles.set(key, value);
-    // else return Knuckles.get(key);
-}
-;
+import _Resource from './resource';
 var Knuckles;
 (function (Knuckles) {
-    // export var Sonic      = _Sonic;
+    Knuckles.Sonic = _Sonic;
     Knuckles.XHR = _XHR;
-    Knuckles.Collection = _Collection;
+    Knuckles.Resource = _Resource;
 })(Knuckles || (Knuckles = {}));
-export default Knuckles;
 module.exports = Knuckles;
+export default Knuckles;

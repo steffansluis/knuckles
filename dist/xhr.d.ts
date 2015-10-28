@@ -2,11 +2,14 @@ export interface XHROptions {
     method?: string;
     body?: string;
 }
-export declare var XHR: {
-    create: (key: string | number, options: any) => Promise<XMLHttpRequest>;
-    get: (url: string) => Promise<XMLHttpRequest>;
-    put: (url: string, body: Object) => Promise<XMLHttpRequest>;
-    post: (url: string, body: Object) => Promise<XMLHttpRequest>;
-    delete: (url: string) => Promise<XMLHttpRequest>;
-};
+export declare module XHR {
+    function fetch(url: string, options: {
+        method: any;
+        body?: string;
+    }): Promise<XMLHttpRequest>;
+    function get(url: string): Promise<string>;
+    function put(url: string, body: string): Promise<string>;
+    function post(url: string, body: string): Promise<string>;
+    function del(url: string): Promise<string>;
+}
 export default XHR;

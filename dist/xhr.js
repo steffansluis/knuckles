@@ -1,35 +1,31 @@
-export var XHR = {
-    create: (key, options) => {
+export var XHR;
+(function (XHR) {
+    function fetch(url, options) {
         return new Promise((resolve, reject) => {
-            var xhr = new XMLHttpRequest(), url = key.toString(), { method, body } = options;
-            xhr.onload = function () {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    resolve(xhr);
-                }
-                else {
-                    reject(xhr);
-                }
-            };
-            xhr.onerror = function () {
-                reject(xhr);
-            };
+            var xhr = new XMLHttpRequest(), { method, body } = options;
+            xhr.onload = () => xhr.status >= 200 && xhr.status < 400 ? resolve(xhr) : reject(xhr);
+            xhr.onerror = xhr.onabort = xhr.ontimeout = () => reject(xhr);
             xhr.open(method, url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-            xhr.send(JSON.stringify(body));
+            xhr.send(body);
         });
-    },
-    get: (url) => {
-        return XHR.create(url, { method: "GET" });
-    },
-    put: (url, body) => {
-        return XHR.create(url, { method: "PUT", body: body });
-    },
-    post: (url, body) => {
-        return XHR.create(url, { method: "POST", body: body });
-    },
-    delete: (url) => {
-        return XHR.create(url, { method: "DELETE" });
     }
-};
+    XHR.fetch = fetch;
+    function get(url) {
+        return fetch(url, { method: 'get' }).then(xhr => xhr.responseText);
+    }
+    XHR.get = get;
+    function put(url, body) {
+        return fetch(url, { method: 'put', body: body }).then(xhr => xhr.responseText);
+    }
+    XHR.put = put;
+    function post(url, body) {
+        return fetch(url, { method: 'post', body: body }).then(xhr => xhr.responseText);
+    }
+    XHR.post = post;
+    function del(url) {
+        return fetch(url, { method: 'delete' }).then(xhr => xhr.responseText);
+    }
+    XHR.del = del;
+})(XHR || (XHR = {}));
 export default XHR;
