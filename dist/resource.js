@@ -8,25 +8,27 @@ import XHR from './xhr';
 export var Resource;
 (function (Resource) {
     function thunk(state) {
-        return AsyncIterator.forEach(State.toIterator(state), () => { });
+        return AsyncIterator.forEach(State.entries(state), () => { });
     }
     function create(urlRoot, keyProperty = 'id') {
-        var subject = Subject.create(), observable = Observable.map(subject, patch => {
-            var synced = State.map(patch.added, value => {
-                var key = value[keyProperty], string = JSON.stringify(value);
-                return (key != null ? XHR.put(`${urlRoot}/${key}`, string) : XHR.post(urlRoot, string)).then(JSON.parse);
+        var list, subject = Subject.create(), observable = Observable.map(subject, patch => {
+            return AsyncIterator.forEach(State.entries(list.state, patch.range), ([key, value]) => { XHR.del(`${urlRoot}/${key}`); }).then(() => {
+                if (patch.added == null)
+                    return Promise.resolve(patch);
+                var synced = State.map(patch.added, value => {
+                    var key = value[keyProperty], string = JSON.stringify(value);
+                    return (key != null ? XHR.put(`${urlRoot}/${key}`, string) : XHR.post(urlRoot, string)).then(JSON.parse);
+                });
+                var cached = State.cache(synced);
+                var keyed = State.keyBy(cached, value => value[keyProperty]);
+                return thunk(keyed).then(() => ({ range: patch.range, added: keyed }));
             });
-            var cached = State.cache(synced);
-            var keyed = State.keyBy(cached, value => value[keyProperty]);
-            return thunk(keyed).then(() => ({
-                range: patch.range,
-                added: keyed
-            }));
         });
-        return List.create(createState(urlRoot, keyProperty), {
+        list = List.create(createState(urlRoot, keyProperty), {
             onNext: subject.onNext,
             subscribe: observable.subscribe
         });
+        return list;
     }
     Resource.create = create;
     function createState(urlRoot, keyProperty = 'id') {

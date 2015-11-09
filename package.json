@@ -46,7 +46,7 @@
     "test": "gulp spec"
   },
   "dependencies": {
-    "sonic": "git://github.com/joostverdoorn/sonic#develop"
+    "sonic": "git://github.com/joostverdoorn/sonic.git#develop"
   },
   "browserify": {
     "transform": [
