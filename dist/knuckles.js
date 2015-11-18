@@ -11,10 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+import _Sonic from 'sonic/dist/sonic';
 import _XHR from './xhr';
 import _Resource from './resource';
 var Knuckles;
 (function (Knuckles) {
+    Knuckles.Sonic = _Sonic;
     Knuckles.XHR = _XHR;
     Knuckles.Resource = _Resource;
 })(Knuckles || (Knuckles = {}));

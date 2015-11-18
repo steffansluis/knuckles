@@ -28,23 +28,24 @@ export module Resource {
 
     observable = Observable.map(subject, async (patch) => {
       var slice = State.slice(store.state, patch.range);
-      var deleted = patch.added ? State.omit(store.state, slice) : slice;
+      var deleted = patch.added ? State.omit(slice, State.keyBy(patch.added, (value: Record) => String(value[keyProperty]))) : slice;
 
-      await AsyncIterator.forEach(State.keys(deleted), key => { XHR.del(`${urlRoot}/${key}`) });
+      await AsyncIterator.forEach(State.keys(deleted), key => XHR.del(`${urlRoot}/${key}`).then(() => {}));
       if (!patch.added) return patch;
 
       var synced = State.map(patch.added, (value: Record) => {
         var key: Key = value[keyProperty],
             string = JSON.stringify(value);
 
-        if (key == undefined) return XHR.put(`${urlRoot}/${key}`, string).then(JSON.parse)
+        if (key != undefined) return XHR.put(`${urlRoot}/${key}`, string).then(JSON.parse)
         return XHR.post(urlRoot, string).then(JSON.parse);
       });
 
       var cached = State.cache(synced);
       var keyed = State.keyBy(cached, value => value[keyProperty]);
 
-      return thunk(keyed).then(() => ({range: patch.range, added: keyed}));
+      await thunk(keyed);
+      return {range: patch.range, added: keyed};
     });
 
     return store = Store.create(createState(urlRoot, keyProperty), {
