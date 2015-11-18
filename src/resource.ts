@@ -17,10 +17,6 @@ import   XHR            from './xhr';
 export module Resource {
   export type Record = {[key: string]: any};
 
-  function thunk<V>(state: State<V>): Promise<void> {
-    return AsyncIterator.forEach(State.entries(state), () => {});
-  }
-
   export function create<V>(urlRoot: string, keyProperty = 'id'): MutableStore<V> {
     var store: MutableStore<V>,
         subject = Subject.create<Patch<V>>(),
@@ -44,7 +40,7 @@ export module Resource {
       var cached = State.cache(synced);
       var keyed = State.keyBy(cached, value => value[keyProperty]);
 
-      await thunk(keyed);
+      await AsyncIterator.forEach(State.entries(keyed), () => {});
       return {range: patch.range, added: keyed};
     });
 

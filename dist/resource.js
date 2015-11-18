@@ -19,9 +19,6 @@ import { Observable, Subject } from 'sonic/dist/observable';
 import XHR from './xhr';
 export var Resource;
 (function (Resource) {
-    function thunk(state) {
-        return AsyncIterator.forEach(State.entries(state), () => { });
-    }
     function create(urlRoot, keyProperty = 'id') {
         var store, subject = Subject.create(), observable;
         observable = Observable.map(subject, (patch) => __awaiter(this, void 0, Promise, function* () {
@@ -38,7 +35,7 @@ export var Resource;
             });
             var cached = State.cache(synced);
             var keyed = State.keyBy(cached, value => value[keyProperty]);
-            yield thunk(keyed);
+            yield AsyncIterator.forEach(State.entries(keyed), () => { });
             return { range: patch.range, added: keyed };
         }));
         return store = Store.create(createState(urlRoot, keyProperty), {

@@ -5503,9 +5503,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Resource = exports.Resource = undefined;
 	(function (Resource) {
-	    function thunk(state) {
-	        return _async_iterator2.default.forEach(_state2.default.entries(state), function () {});
-	    }
 	    function create(urlRoot) {
 	        var _this = this;
 	
@@ -5550,7 +5547,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                    return value[keyProperty];
 	                                });
 	                                _context.next = 11;
-	                                return thunk(keyed);
+	                                return _async_iterator2.default.forEach(_state2.default.entries(keyed), function () {});
 	
 	                            case 11:
 	                                return _context.abrupt("return", { range: patch.range, added: keyed });
