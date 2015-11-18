@@ -1,9 +1,9 @@
-import _Sonic    from '../node_modules/sonic/dist/sonic';
+// import _Sonic    from '../node_modules/sonic/dist/sonic';
 import _XHR      from './xhr';
 import _Resource from './resource';
 
 module Knuckles {
-  export var Sonic    = _Sonic;
+  // export var Sonic    = _Sonic;
   export var XHR      = _XHR;
   export var Resource = _Resource;
 }

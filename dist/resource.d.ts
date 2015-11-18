@@ -1,7 +1,10 @@
 import State from 'sonic/dist/state';
-import { MutableList } from 'sonic/dist/list';
+import { MutableStore } from 'sonic/dist/store';
 export declare module Resource {
-    function create<V>(urlRoot: string, keyProperty?: string): MutableList<V>;
+    type Record = {
+        [key: string]: any;
+    };
+    function create<V>(urlRoot: string, keyProperty?: string): MutableStore<V>;
     function createState<V>(urlRoot: string, keyProperty?: string): State<V>;
 }
 export default Resource;

@@ -1,9 +1,21 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
+    return new Promise(function (resolve, reject) {
+        generator = generator.call(thisArg, _arguments);
+        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
+        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
+        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
+        function step(verb, value) {
+            var result = generator[verb](value);
+            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
+        }
+        step("next", void 0);
+    });
+};
 import State from 'sonic/dist/state';
 import Cache from 'sonic/dist/cache';
 import AsyncIterator from 'sonic/dist/async_iterator';
-import { List } from 'sonic/dist/list';
+import { Store } from 'sonic/dist/store';
 import { Observable, Subject } from 'sonic/dist/observable';
-import PromiseUtils from 'sonic/dist/promise_utils';
 import XHR from './xhr';
 export var Resource;
 (function (Resource) {
@@ -11,49 +23,48 @@ export var Resource;
         return AsyncIterator.forEach(State.entries(state), () => { });
     }
     function create(urlRoot, keyProperty = 'id') {
-        var list, subject = Subject.create(), observable = Observable.map(subject, patch => {
-            return AsyncIterator.forEach(State.entries(list.state, patch.range), ([key, value]) => { XHR.del(`${urlRoot}/${key}`); }).then(() => {
-                if (patch.added == null)
-                    return Promise.resolve(patch);
-                var synced = State.map(patch.added, value => {
-                    var key = value[keyProperty], string = JSON.stringify(value);
-                    return (key != null ? XHR.put(`${urlRoot}/${key}`, string) : XHR.post(urlRoot, string)).then(JSON.parse);
-                });
-                var cached = State.cache(synced);
-                var keyed = State.keyBy(cached, value => value[keyProperty]);
-                return thunk(keyed).then(() => ({ range: patch.range, added: keyed }));
+        var store, subject = Subject.create(), observable;
+        observable = Observable.map(subject, (patch) => __awaiter(this, void 0, Promise, function* () {
+            var slice = State.slice(store.state, patch.range);
+            var deleted = patch.added ? State.omit(store.state, slice) : slice;
+            yield AsyncIterator.forEach(State.keys(deleted), key => { XHR.del(`${urlRoot}/${key}`); });
+            if (!patch.added)
+                return patch;
+            var synced = State.map(patch.added, (value) => {
+                var key = value[keyProperty], string = JSON.stringify(value);
+                if (key == undefined)
+                    return XHR.put(`${urlRoot}/${key}`, string).then(JSON.parse);
+                return XHR.post(urlRoot, string).then(JSON.parse);
             });
-        });
-        list = List.create(createState(urlRoot, keyProperty), {
+            var cached = State.cache(synced);
+            var keyed = State.keyBy(cached, value => value[keyProperty]);
+            return thunk(keyed).then(() => ({ range: patch.range, added: keyed }));
+        }));
+        return store = Store.create(createState(urlRoot, keyProperty), {
             onNext: subject.onNext,
             subscribe: observable.subscribe
         });
-        return list;
     }
     Resource.create = create;
     function createState(urlRoot, keyProperty = 'id') {
         var cache = Cache.create();
-        var fetcher = PromiseUtils.lazy(resolve => {
-            var state = XHR.get(urlRoot)
+        var { prev, next } = State.lazy(() => {
+            return XHR.get(urlRoot)
                 .then(JSON.parse)
-                .then(State.fromArray)
-                .then(state => State.keyBy(state, value => {
-                cache.get[value[keyProperty]] = Promise.resolve(value);
-                return value[keyProperty];
-            }));
-            resolve(state);
+                .then(array => {
+                return State.keyBy(State.fromArray(array), value => {
+                    var key = String(value[keyProperty]);
+                    cache.get[key] = Promise.resolve(value);
+                    return key;
+                });
+            });
         });
         function get(key) {
             return XHR.get(`${urlRoot}/${key}`).then(JSON.parse);
-        }
-        function prev(key) {
-            return fetcher.then(state => state.prev(key));
-        }
-        function next(key) {
-            return fetcher.then(state => state.next(key));
         }
         return Cache.apply({ get, prev, next }, cache);
     }
     Resource.createState = createState;
 })(Resource || (Resource = {}));
 export default Resource;
+//# sourceMappingURL=resource.js.map
