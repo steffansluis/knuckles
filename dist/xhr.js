@@ -7,24 +7,28 @@ export var XHR;
             xhr.onerror = xhr.onabort = xhr.ontimeout = () => reject(xhr);
             xhr.open(method, url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
+            if (options.headers)
+                Object.keys(options.headers).forEach(key => {
+                    xhr.setRequestHeader(key, options.headers[key]);
+                });
             xhr.send(body);
         });
     }
     XHR.fetch = fetch;
-    function get(url) {
-        return fetch(url, { method: 'get' }).then(xhr => xhr.responseText);
+    function get(url, headers) {
+        return fetch(url, { method: 'get', headers: headers }).then(xhr => xhr.responseText);
     }
     XHR.get = get;
-    function put(url, body) {
-        return fetch(url, { method: 'put', body: body }).then(xhr => xhr.responseText);
+    function put(url, body, headers) {
+        return fetch(url, { method: 'put', body: body, headers: headers }).then(xhr => xhr.responseText);
     }
     XHR.put = put;
-    function post(url, body) {
-        return fetch(url, { method: 'post', body: body }).then(xhr => xhr.responseText);
+    function post(url, body, headers) {
+        return fetch(url, { method: 'post', body: body, headers: headers }).then(xhr => xhr.responseText);
     }
     XHR.post = post;
-    function del(url) {
-        return fetch(url, { method: 'delete' }).then(xhr => xhr.responseText);
+    function del(url, headers) {
+        return fetch(url, { method: 'delete', headers: headers }).then(xhr => xhr.responseText);
     }
     XHR.del = del;
 })(XHR || (XHR = {}));

@@ -19,7 +19,7 @@ import { Observable, Subject } from 'sonic/dist/observable';
 import XHR from './xhr';
 export var Resource;
 (function (Resource) {
-    function create(urlRoot, keyProperty = 'id') {
+    function create(urlRoot, keyProperty = 'id', headers) {
         var store, subject = Subject.create(), observable;
         observable = Observable.map(subject, (patch) => __awaiter(this, void 0, Promise, function* () {
             var slice = State.slice(store.state, patch.range);
@@ -30,24 +30,24 @@ export var Resource;
             var synced = State.map(patch.added, (value) => {
                 var key = value[keyProperty], string = JSON.stringify(value);
                 if (key != undefined)
-                    return XHR.put(`${urlRoot}/${key}`, string).then(JSON.parse);
-                return XHR.post(urlRoot, string).then(JSON.parse);
+                    return XHR.put(`${urlRoot}/${key}`, string, headers).then(JSON.parse);
+                return XHR.post(urlRoot, string, headers).then(JSON.parse);
             });
             var cached = State.cache(synced);
             var keyed = State.keyBy(cached, value => value[keyProperty]);
             yield AsyncIterator.forEach(State.entries(keyed), () => { });
             return { range: patch.range, added: keyed };
         }));
-        return store = Store.create(createState(urlRoot, keyProperty), {
+        return store = Store.create(createState(urlRoot, keyProperty, headers), {
             onNext: subject.onNext,
             subscribe: observable.subscribe
         });
     }
     Resource.create = create;
-    function createState(urlRoot, keyProperty = 'id') {
+    function createState(urlRoot, keyProperty = 'id', headers) {
         var cache = Cache.create();
         var { prev, next } = State.lazy(() => {
-            return XHR.get(urlRoot)
+            return XHR.get(urlRoot, headers)
                 .then(JSON.parse)
                 .then(array => {
                 return State.keyBy(State.fromArray(array), value => {
@@ -58,7 +58,7 @@ export var Resource;
             });
         });
         function get(key) {
-            return XHR.get(`${urlRoot}/${key}`).then(JSON.parse);
+            return XHR.get(`${urlRoot}/${key}`, headers).then(JSON.parse);
         }
         return Cache.apply({ get, prev, next }, cache);
     }

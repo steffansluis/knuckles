@@ -5374,6 +5374,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.XHR = undefined;
 	
+	var _keys = __webpack_require__(85);
+	
+	var _keys2 = _interopRequireDefault(_keys);
+	
 	var _promise = __webpack_require__(43);
 	
 	var _promise2 = _interopRequireDefault(_promise);
@@ -5395,30 +5399,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	            xhr.open(method, url, true);
 	            xhr.setRequestHeader('Content-Type', 'application/json');
+	            if (options.headers) (0, _keys2.default)(options.headers).forEach(function (key) {
+	                xhr.setRequestHeader(key, options.headers[key]);
+	            });
 	            xhr.send(body);
 	        });
 	    }
 	    XHR.fetch = fetch;
-	    function get(url) {
-	        return fetch(url, { method: 'get' }).then(function (xhr) {
+	    function get(url, headers) {
+	        return fetch(url, { method: 'get', headers: headers }).then(function (xhr) {
 	            return xhr.responseText;
 	        });
 	    }
 	    XHR.get = get;
-	    function put(url, body) {
-	        return fetch(url, { method: 'put', body: body }).then(function (xhr) {
+	    function put(url, body, headers) {
+	        return fetch(url, { method: 'put', body: body, headers: headers }).then(function (xhr) {
 	            return xhr.responseText;
 	        });
 	    }
 	    XHR.put = put;
-	    function post(url, body) {
-	        return fetch(url, { method: 'post', body: body }).then(function (xhr) {
+	    function post(url, body, headers) {
+	        return fetch(url, { method: 'post', body: body, headers: headers }).then(function (xhr) {
 	            return xhr.responseText;
 	        });
 	    }
 	    XHR.post = post;
-	    function del(url) {
-	        return fetch(url, { method: 'delete' }).then(function (xhr) {
+	    function del(url, headers) {
+	        return fetch(url, { method: 'delete', headers: headers }).then(function (xhr) {
 	            return xhr.responseText;
 	        });
 	    }
@@ -5507,6 +5514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _this = this;
 	
 	        var keyProperty = arguments.length <= 1 || arguments[1] === undefined ? 'id' : arguments[1];
+	        var headers = arguments[2];
 	
 	        var store,
 	            subject = _observable.Subject.create(),
@@ -5539,8 +5547,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                synced = _state2.default.map(patch.added, function (value) {
 	                                    var key = value[keyProperty],
 	                                        string = (0, _stringify2.default)(value);
-	                                    if (key != undefined) return _xhr2.default.put(urlRoot + "/" + key, string).then(JSON.parse);
-	                                    return _xhr2.default.post(urlRoot, string).then(JSON.parse);
+	                                    if (key != undefined) return _xhr2.default.put(urlRoot + "/" + key, string, headers).then(JSON.parse);
+	                                    return _xhr2.default.post(urlRoot, string, headers).then(JSON.parse);
 	                                });
 	                                cached = _state2.default.cache(synced);
 	                                keyed = _state2.default.keyBy(cached, function (value) {
@@ -5560,7 +5568,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }, _callee, this);
 	            }));
 	        });
-	        return store = _store.Store.create(createState(urlRoot, keyProperty), {
+	        return store = _store.Store.create(createState(urlRoot, keyProperty, headers), {
 	            onNext: subject.onNext,
 	            subscribe: observable.subscribe
 	        });
@@ -5568,11 +5576,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Resource.create = create;
 	    function createState(urlRoot) {
 	        var keyProperty = arguments.length <= 1 || arguments[1] === undefined ? 'id' : arguments[1];
+	        var headers = arguments[2];
 	
 	        var cache = _cache2.default.create();
 	
 	        var _State$lazy = _state2.default.lazy(function () {
-	            return _xhr2.default.get(urlRoot).then(JSON.parse).then(function (array) {
+	            return _xhr2.default.get(urlRoot, headers).then(JSON.parse).then(function (array) {
 	                return _state2.default.keyBy(_state2.default.fromArray(array), function (value) {
 	                    var key = String(value[keyProperty]);
 	                    cache.get[key] = _promise2.default.resolve(value);
@@ -5585,7 +5594,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var next = _State$lazy.next;
 	
 	        function get(key) {
-	            return _xhr2.default.get(urlRoot + "/" + key).then(JSON.parse);
+	            return _xhr2.default.get(urlRoot + "/" + key, headers).then(JSON.parse);
 	        }
 	        return _cache2.default.apply({ get: get, prev: prev, next: next }, cache);
 	    }

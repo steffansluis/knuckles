@@ -16,5 +16,8 @@
         "src/resource.ts",
         "src/xhr.ts"
     ],
-    "exclude": []
+    "exclude": [],
+    "atom": {
+        "rewriteTsconfig": true
+    }
 }

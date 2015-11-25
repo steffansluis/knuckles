@@ -17,7 +17,7 @@ import   XHR            from './xhr';
 export module Resource {
   export type Record = {[key: string]: any};
 
-  export function create<V>(urlRoot: string, keyProperty = 'id'): MutableStore<V> {
+  export function create<V>(urlRoot: string, keyProperty = 'id', headers?: {[key: string]: string}): MutableStore<V> {
     var store: MutableStore<V>,
         subject = Subject.create<Patch<V>>(),
         observable: Observable<Patch<V>>;
@@ -33,8 +33,8 @@ export module Resource {
         var key: Key = value[keyProperty],
             string = JSON.stringify(value);
 
-        if (key != undefined) return XHR.put(`${urlRoot}/${key}`, string).then(JSON.parse)
-        return XHR.post(urlRoot, string).then(JSON.parse);
+        if (key != undefined) return XHR.put(`${urlRoot}/${key}`, string, headers).then(JSON.parse)
+        return XHR.post(urlRoot, string, headers).then(JSON.parse);
       });
 
       var cached = State.cache(synced);
@@ -44,17 +44,17 @@ export module Resource {
       return {range: patch.range, added: keyed};
     });
 
-    return store = Store.create(createState(urlRoot, keyProperty), {
+    return store = Store.create(createState(urlRoot, keyProperty, headers), {
       onNext: subject.onNext,
       subscribe: observable.subscribe
     });
   }
 
-  export function createState<V>(urlRoot: string, keyProperty = 'id'): State<V> {
+  export function createState<V>(urlRoot: string, keyProperty = 'id', headers?: {[key: string]: string}): State<V> {
     var cache = Cache.create();
 
     var {prev, next} = State.lazy(() => {
-      return XHR.get(urlRoot)
+      return XHR.get(urlRoot, headers)
         .then(JSON.parse)
         .then(array => {
           return State.keyBy(State.fromArray<Record>(array), value => {
@@ -66,7 +66,7 @@ export module Resource {
     });
 
     function get(key: Key): Promise<V> {
-      return XHR.get(`${urlRoot}/${key}`).then(JSON.parse)
+      return XHR.get(`${urlRoot}/${key}`, headers).then(JSON.parse);
     }
 
     return Cache.apply({get, prev, next}, cache);
