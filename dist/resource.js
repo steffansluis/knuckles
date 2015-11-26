@@ -65,4 +65,3 @@ export var Resource;
     Resource.createState = createState;
 })(Resource || (Resource = {}));
 export default Resource;
-//# sourceMappingURL=resource.js.map

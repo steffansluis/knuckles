@@ -33,4 +33,3 @@ export var XHR;
     XHR.del = del;
 })(XHR || (XHR = {}));
 export default XHR;
-//# sourceMappingURL=xhr.js.map

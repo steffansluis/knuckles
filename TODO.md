@@ -1,4 +1,4 @@
 # TODO
 
 ## Resource
-- [ ] Allow global configs for headers
+- [ ] (?) Allow global configs for headers

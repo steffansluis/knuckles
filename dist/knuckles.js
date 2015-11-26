@@ -22,4 +22,3 @@ var Knuckles;
 })(Knuckles || (Knuckles = {}));
 module.exports = Knuckles;
 export default Knuckles;
-//# sourceMappingURL=knuckles.js.map
