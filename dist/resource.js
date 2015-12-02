@@ -19,42 +19,42 @@ import { Observable, Subject } from 'sonic/dist/observable';
 import XHR from './xhr';
 export var Resource;
 (function (Resource) {
-    function create(urlRoot, keyProperty = 'id', headers) {
+    function create(urlRoot, keyFn = record => record['id'], headers) {
         var store, subject = Subject.create(), observable;
         observable = Observable.map(subject, (patch) => __awaiter(this, void 0, Promise, function* () {
             var slice = State.slice(store.state, patch.range);
-            var deleted = patch.added ? State.omit(slice, State.keyBy(patch.added, (value) => String(value[keyProperty]))) : slice;
+            var deleted = patch.added ? State.omit(slice, State.keyBy(patch.added, keyFn)) : slice;
             yield AsyncIterator.forEach(State.keys(deleted), key => XHR.del(`${urlRoot}/${key}`).then(() => { }));
             if (!patch.added)
                 return patch;
-            var synced = State.map(patch.added, (value) => {
-                var key = value[keyProperty], string = JSON.stringify(value);
+            var synced = State.map(patch.added, (value) => __awaiter(this, void 0, Promise, function* () {
+                var key = yield keyFn(value), string = JSON.stringify(value);
                 if (key != undefined)
                     return XHR.put(`${urlRoot}/${key}`, string, headers).then(JSON.parse);
                 return XHR.post(urlRoot, string, headers).then(JSON.parse);
-            });
+            }));
             var cached = State.cache(synced);
-            var keyed = State.keyBy(cached, value => value[keyProperty]);
+            var keyed = State.keyBy(cached, keyFn);
             yield AsyncIterator.forEach(State.entries(keyed), () => { });
             return { range: patch.range, added: keyed };
         }));
-        return store = Store.create(createState(urlRoot, keyProperty, headers), {
+        return store = Store.create(createState(urlRoot, keyFn, headers), {
             onNext: subject.onNext,
             subscribe: observable.subscribe
         });
     }
     Resource.create = create;
-    function createState(urlRoot, keyProperty = 'id', headers) {
+    function createState(urlRoot, keyFn = record => record['id'], headers) {
         var cache = Cache.create();
         var { prev, next } = State.lazy(() => {
             return XHR.get(urlRoot, headers)
                 .then(JSON.parse)
-                .then(array => {
-                return State.keyBy(State.fromArray(array), value => {
-                    var key = String(value[keyProperty]);
-                    cache.get[key] = Promise.resolve(value);
+                .then(object => {
+                return State.keyBy(State.fromObject(object), (value) => __awaiter(this, void 0, Promise, function* () {
+                    var key = yield keyFn(value);
+                    cache.get(key, value);
                     return key;
-                });
+                }));
             });
         });
         function get(key) {

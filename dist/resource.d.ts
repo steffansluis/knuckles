@@ -4,11 +4,11 @@ export declare module Resource {
     type Record = {
         [key: string]: any;
     };
-    function create<V>(urlRoot: string, keyProperty?: string, headers?: {
+    function create<K>(urlRoot: string, keyFn?: (value: Record) => K | Promise<K>, headers?: {
         [key: string]: string;
-    }): MutableStore<V>;
-    function createState<V>(urlRoot: string, keyProperty?: string, headers?: {
+    }): MutableStore<K, Record>;
+    function createState<K>(urlRoot: string, keyFn?: (value: Record) => K | Promise<K>, headers?: {
         [key: string]: string;
-    }): State<V>;
+    }): State<K, Record>;
 }
 export default Resource;

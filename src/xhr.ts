@@ -1,4 +1,5 @@
 import Key from 'sonic/dist/key';
+import { NotFound } from 'sonic/dist/exceptions';
 
 export interface XHROptions {
   method?: string,
@@ -11,8 +12,8 @@ export module XHR {
       var xhr = new XMLHttpRequest(),
           { method, body } = options;
 
-      xhr.onload  = () => xhr.status >= 200 && xhr.status < 400 ? resolve(xhr) : reject(xhr);
-      xhr.onerror = xhr.onabort = xhr.ontimeout = () => reject(xhr);
+      xhr.onload  = () => xhr.status >= 200 && xhr.status < 400 ? resolve(xhr) : reject(xhr.status === 404 ? new NotFound : xhr);
+      xhr.onerror = xhr.onabort = xhr.ontimeout = () => reject(xhr.status === 404 ? new NotFound : xhr);
 
       xhr.open(method, url, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
