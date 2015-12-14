@@ -13,6 +13,7 @@
     ],
     "files": [
         "src/knuckles.ts",
+        "src/local_storage.ts",
         "src/resource.ts",
         "src/xhr.ts"
     ],

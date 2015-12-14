@@ -11,11 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-import State from 'sonic/dist/state';
-import Cache from 'sonic/dist/cache';
-import AsyncIterator from 'sonic/dist/async_iterator';
-import { Store } from 'sonic/dist/store';
-import { Observable, Subject } from 'sonic/dist/observable';
+import State from 'sonicjs/dist/state';
+import Cache from 'sonicjs/dist/cache';
+import AsyncIterator from 'sonicjs/dist/async_iterator';
+import { Store } from 'sonicjs/dist/store';
+import { Observable, Subject } from 'sonicjs/dist/observable';
 import XHR from './xhr';
 export var Resource;
 (function (Resource) {
@@ -63,5 +63,19 @@ export var Resource;
         return Cache.apply({ get, prev, next }, cache);
     }
     Resource.createState = createState;
+    function sub(store, filterFn, urlRoot, keyFn = record => record['id']) {
+        var filtered = Store.filter(FruitStore, filterFn);
+        var subResource = create(urlRoot, keyFn);
+        var { prev, next } = subResource.state;
+        var { dispatcher, state: { get } } = filtered;
+        var state = { get, prev, next };
+        return { state, dispatcher };
+    }
+    Resource.sub = sub;
+    var FruitStore = Resource.create('my.api/fruits');
+    var BasketStore = Resource.create('my.api/baskets');
+    var fruitsByBasket = Store.map(BasketStore, (basket, id) => {
+        return sub(FruitStore, fruit => fruit['basket_id'] === id, `my.api/baskets/${id}/fruits`);
+    });
 })(Resource || (Resource = {}));
 export default Resource;

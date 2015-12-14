@@ -1,5 +1,4 @@
-import Key from 'sonic/dist/key';
-import { NotFound } from 'sonic/dist/exceptions';
+import { NotFound } from 'sonicjs/dist/exceptions';
 
 export interface XHROptions {
   method?: string,
