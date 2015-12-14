@@ -11,14 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-import _Sonic from 'sonic/dist/sonic';
+import _Sonic from 'sonicjs/dist/sonic';
 import _XHR from './xhr';
 import _Resource from './resource';
+import _LocalStorage from './local_storage';
 var Knuckles;
 (function (Knuckles) {
     Knuckles.Sonic = _Sonic;
     Knuckles.XHR = _XHR;
     Knuckles.Resource = _Resource;
+    Knuckles.LocalStorage = _LocalStorage;
 })(Knuckles || (Knuckles = {}));
 module.exports = Knuckles;
 export default Knuckles;

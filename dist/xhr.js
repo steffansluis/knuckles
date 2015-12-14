@@ -1,4 +1,4 @@
-import { NotFound } from 'sonic/dist/exceptions';
+import { NotFound } from 'sonicjs/dist/exceptions';
 export var XHR;
 (function (XHR) {
     function fetch(url, options) {
