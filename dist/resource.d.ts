@@ -1,5 +1,5 @@
-import State from 'sonic/dist/state';
-import { MutableStore } from 'sonic/dist/store';
+import State from 'sonicjs/dist/state';
+import { MutableStore } from 'sonicjs/dist/store';
 export declare module Resource {
     type Record = {
         [key: string]: any;

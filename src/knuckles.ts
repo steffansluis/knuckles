@@ -1,4 +1,4 @@
-import _Sonic    from 'sonic/dist/sonic';
+import _Sonic    from 'sonicjs/dist/sonic';
 import _XHR      from './xhr';
 import _Resource from './resource';
 

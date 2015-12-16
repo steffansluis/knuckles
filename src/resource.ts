@@ -1,16 +1,16 @@
-import   Key            from 'sonic/dist/key';
-import   Patch          from 'sonic/dist/patch';
-import   State          from 'sonic/dist/state';
-import   Cache          from 'sonic/dist/cache';
-import   AsyncIterator  from 'sonic/dist/async_iterator';
+import   Key            from 'sonicjs/dist/key';
+import   Patch          from 'sonicjs/dist/patch';
+import   State          from 'sonicjs/dist/state';
+import   Cache          from 'sonicjs/dist/cache';
+import   AsyncIterator  from 'sonicjs/dist/async_iterator';
 import { Store,
-         MutableStore } from 'sonic/dist/store';
-import   Lens           from 'sonic/dist/lens';
+         MutableStore } from 'sonicjs/dist/store';
+import   Lens           from 'sonicjs/dist/lens';
 import { Range,
-         Position }     from 'sonic/dist/range';
+         Position }     from 'sonicjs/dist/range';
 import { Observable,
-         Subject }      from 'sonic/dist/observable';
-import   PromiseUtils   from 'sonic/dist/promise_utils';
+         Subject }      from 'sonicjs/dist/observable';
+import   PromiseUtils   from 'sonicjs/dist/promise_utils';
 import   XHR            from './xhr';
 
 
