@@ -12,8 +12,8 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        exclude: /(node_modules(?!\/sonic)|bower_components)/,
-        loader: 'babel?presets[]=es2015&plugins[]=transform-runtime'
+        exclude: /(node_modules(?!\/sonicjs)|bower_components)/,
+        loader: 'babel'
       }
     ]
   }
