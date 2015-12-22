@@ -1,6 +1,6 @@
 {
   "name": "knucklesjs",
-  "description": "",
+  "description": "Async robust data management",
   "version": "0.0.1",
   "authors": [
     "Joost Verdoorn",
@@ -11,6 +11,13 @@
   "files": [
     "dist",
     "src"
+  ],
+  "keywords": [
+    "store",
+    "xhr",
+    "async",
+    "REST",
+    "localStorage"
   ],
   "licenses": "MIT",
   "repository": {
