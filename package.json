@@ -1,7 +1,7 @@
 {
   "name": "knucklesjs",
   "description": "Async robust data management",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "authors": [
     "Joost Verdoorn",
     "Steffan Sluis"
